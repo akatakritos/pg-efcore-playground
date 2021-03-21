@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Demo.Api.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Options;
@@ -110,7 +111,7 @@ namespace Demo.Api.Data
         }
     }
 
-    public class ModelBase
+    public class ModelBase :  IModel
     {
         public int Id { get; set; }
         public Guid Key { get; set; } = Guid.NewGuid();

@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using ConsoleApplication1.Api;
 using Demo.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NodaTime;
+using NodaTime.TimeZones;
 
 namespace ConsoleApplication1
 {
@@ -20,30 +20,20 @@ namespace ConsoleApplication1
             // await Seed();
             // return;
 
-            var context = new PlaygroundContext();
             // context.Customers.Add(customer);
             // await context.SaveChangesAsync();
-
-            var service = new ApiService();
-            var c = await service.GetCustomer(Guid.Parse("254b4adc-7033-48c5-800d-4a776baa1d6e"));
-
-
-            foreach (var o in c.Orders)
-            {
-                Console.WriteLine($"{o.OrderType} Order (for {o.CustomerModelKey}");
-                foreach (var l in o.LineItems)
-                {
-                    Console.WriteLine($" - {l.Product}: {l.ItemCount} x ${l.UnitPrice} = ${l.ItemCount * l.UnitPrice}");
-                }
-            }
-
+            await Task.Delay(1000);
         }
 
         static async Task Seed(int n = 1000)
         {
             for (int i = 0; i < n; i++)
             {
-                var context = new PlaygroundContext();
+                var context = new PlaygroundContext(new DbContextOptionsBuilder<PlaygroundContext>()
+                    .UseNpgsql("Host=localhost;Database=playground;Username=postgres;Password=LocalDev123",
+                        o => o.UseNodaTime())
+                    .UseSnakeCaseNamingConvention()
+                    .EnableSensitiveDataLogging().Options);
                 var customer = new Customer()
                 {
                     Name = Faker.Name.FullName(),

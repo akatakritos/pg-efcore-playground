@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Demo.Api.Data;
+using Demo.Api.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +20,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using Serilog.Extensions.Logging;
 
 namespace Demo.Api
@@ -44,8 +50,19 @@ namespace Demo.Api
             // for Autofac here, and don't call builder.Populate() - that
             // happens in the AutofacServiceProviderFactory for you.
             services.AddOptions();
-            services.AddControllers();
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Demo.Api", Version = "v1"}); });
+            services.AddControllers()
+                .AddJsonOptions(opt => opt.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Demo.Api", Version = "v1"});
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+                c.MapType<Instant>(() => new OpenApiSchema() {Type = "string", Format = "date-time"});
+            });
+
             services.AddDbContext<PlaygroundContext>(options =>
             {
                 options.UseNpgsql("Host=localhost;Database=playground;Username=postgres;Password=LocalDev123",
@@ -58,6 +75,9 @@ namespace Demo.Api
                     options.UseLoggerFactory(new SerilogLoggerFactory());
                 }
             });
+            services.AddAutoMapper(typeof(Startup));
+
+            TypeDescriptor.AddAttributes(typeof(Instant), new TypeConverterAttribute(typeof(InstantTypeConverter)));
         }
 
         // ConfigureContainer is where you can register things directly
