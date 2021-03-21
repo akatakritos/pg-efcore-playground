@@ -8,3 +8,4 @@ Demonstrates some common patterns we use at work in EF Core and PG
 - version number as concurrency check
 - enum "lib" tables
 - noda time
+- automapper: smaller public footprint, combined ModelKey idea. projections
