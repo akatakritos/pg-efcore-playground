@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,14 +27,16 @@ namespace ConsoleApplication1
             var service = new ApiService();
             var c = await service.GetCustomer(Guid.Parse("254b4adc-7033-48c5-800d-4a776baa1d6e"));
 
+
             foreach (var o in c.Orders)
             {
-                Console.WriteLine($"{o.OrderType} Order");
+                Console.WriteLine($"{o.OrderType} Order (for {o.CustomerModelKey}");
                 foreach (var l in o.LineItems)
                 {
                     Console.WriteLine($" - {l.Product}: {l.ItemCount} x ${l.UnitPrice} = ${l.ItemCount * l.UnitPrice}");
                 }
             }
+
         }
 
         static async Task Seed(int n = 1000)
