@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="10.1.1" />
       <PackageReference Include="EFCore.NamingConventions" Version="5.0.2" />
       <PackageReference Include="Faker.Net" Version="1.5.126" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.4" />
