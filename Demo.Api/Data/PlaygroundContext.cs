@@ -5,9 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.Extensions.Options;
 using NodaTime;
 
-namespace ConsoleApplication1.Data
+namespace Demo.Api.Data
 {
     public class PlaygroundContext : DbContext
     {
@@ -15,25 +16,9 @@ namespace ConsoleApplication1.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<LineItem> LineItems { get; set; }
 
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public PlaygroundContext(DbContextOptions<PlaygroundContext> options) : base(options)
         {
-            optionsBuilder
-                .UseNpgsql("Host=localhost;Database=playground;Username=postgres;Password=LocalDev123",
-                    o => o.UseNodaTime())
-                .UseSnakeCaseNamingConvention()
-                .EnableSensitiveDataLogging()
-                .LogTo(s =>
-                {
-                    var previous = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine(s);
-                    Console.ForegroundColor = previous;
-                });
-
-            base.OnConfiguring(optionsBuilder);
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

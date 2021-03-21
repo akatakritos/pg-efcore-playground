@@ -6,7 +6,7 @@ using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleApplication1.Api;
-using ConsoleApplication1.Data;
+using Demo.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NodaTime;
