@@ -5,6 +5,7 @@ using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Demo.Api.Data;
+using Demo.Api.Data.Migrations;
 using Demo.Api.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
+using Serilog;
 using Serilog.Extensions.Logging;
 using StackExchange.Profiling;
 using StackExchange.Profiling.SqlFormatters;
@@ -61,7 +63,7 @@ namespace Demo.Api
 
             services.AddDbContext<PlaygroundContext>(options =>
             {
-                options.UseNpgsql("Host=localhost;Database=playground;Username=postgres;Password=LocalDev123",
+                options.UseNpgsql(Configuration.GetConnectionString("Postgres"),
                         o => o.UseNodaTime())
                     .UseSnakeCaseNamingConvention()
                     .EnableSensitiveDataLogging();
@@ -207,6 +209,22 @@ namespace Demo.Api
             // If, for some reason, you need a reference to the built container, you
             // can use the convenience extension method GetAutofacRoot.
             AutofacContainer = app.ApplicationServices.GetAutofacRoot();
+
+            MigrateDatabase();
+        }
+
+        private void MigrateDatabase()
+        {
+            var migrator = new DbUpMigrator(Configuration.GetConnectionString("Postgres"));
+            try
+            {
+                migrator.Migrate();
+            }
+            catch (DbUpMigrationException ex)
+            {
+                Log.Logger.Fatal(ex, "Failed at migrating");
+                throw;
+            }
         }
     }
 }

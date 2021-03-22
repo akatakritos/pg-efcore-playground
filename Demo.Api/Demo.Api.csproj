@@ -12,6 +12,8 @@
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
         <PackageReference Include="AutoMapper" Version="10.1.1" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+        <PackageReference Include="dbup" Version="4.5.0" />
+        <PackageReference Include="dbup-postgresql" Version="4.5.0" />
         <PackageReference Include="EFCore.NamingConventions" Version="5.0.2" />
         <PackageReference Include="FluentValidation" Version="9.5.3" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="9.5.3" />
@@ -30,6 +32,14 @@
         <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
         <PackageReference Include="Swashbuckle.NodaTime.AspNetCore" Version="3.0.0" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <None Remove="Data\Migrations\R__SeedOrderType.sql" />
+      <EmbeddedResource Include="Data\Migrations\R__SeedOrderType.sql" />
+      <None Remove="Data\Migrations\V2021.03.22.001__InitialSchema.sql" />
+      <EmbeddedResource Include="Data\Migrations\V2021.03.22.001__InitialSchema.sql" />
     </ItemGroup>
 
 </Project>
