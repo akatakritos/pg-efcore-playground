@@ -59,7 +59,7 @@ namespace Demo.Api.Controllers
         public ValidationErrorResponse(ValidationException v) : base(v)
         {
             ValidationFailures = v.Errors.Select(e => new ValidationFailure
-                {PropertyName = e.PropertyName, ErrorMessage = e.ErrorMessage});
+                { PropertyName = e.PropertyName, ErrorMessage = e.ErrorMessage });
         }
 
         public IEnumerable<ValidationFailure> ValidationFailures { get; }

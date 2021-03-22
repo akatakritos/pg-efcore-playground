@@ -17,10 +17,11 @@ namespace Demo.Api
                 .WriteTo.Console(
                     outputTemplate:
                     "[{Timestamp:yyyy-MM-dd HH:mm:ss.ff} {SourceContext,-48} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-                .WriteTo.File(path: "logs/log-.txt",
+                .WriteTo.File("logs/log-.txt",
                     rollingInterval: RollingInterval.Day,
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {SourceContext,-48} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+                    outputTemplate:
+                    "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {SourceContext,-48} {Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
 
             CreateHostBuilder(args).Build().Run();

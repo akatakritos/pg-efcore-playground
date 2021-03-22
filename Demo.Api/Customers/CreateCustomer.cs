@@ -37,7 +37,7 @@ namespace Demo.Api.Customers
             var customer = _mapper.Map<Customer>(request);
             _context.Add((object) customer);
             await _context.SaveChangesAsync();
-            return new ModelKey {Key = customer.Key, Version = customer.Version};
+            return new ModelKey { Key = customer.Key, Version = customer.Version };
         }
     }
 }

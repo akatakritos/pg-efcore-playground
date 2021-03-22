@@ -1,10 +1,8 @@
 using System;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Linq.Expressions;
 using AutoMapper;
 using Demo.Api.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace Demo.Api.Shared
 {

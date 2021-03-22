@@ -10,19 +10,19 @@ namespace Demo.Api.Infrastructure
 {
     public class AutoMapperModule : Module
     {
+        private readonly IEnumerable<Assembly> _assembliesToScan;
         private readonly bool _assertConfiguration;
-        private readonly IEnumerable<Assembly> assembliesToScan;
 
         public AutoMapperModule(bool assertConfiguration, params Assembly[] assembliesToScan)
         {
             _assertConfiguration = assertConfiguration;
-            this.assembliesToScan = assembliesToScan;
+            _assembliesToScan = assembliesToScan;
         }
 
         protected override void Load(ContainerBuilder builder)
         {
             base.Load(builder);
-            var assembliesToScan = this.assembliesToScan as Assembly[] ?? this.assembliesToScan.ToArray();
+            var assembliesToScan = _assembliesToScan as Assembly[] ?? _assembliesToScan.ToArray();
 
             var allTypes = assembliesToScan
                 .Where(a => !a.IsDynamic && a.GetName().Name != nameof(AutoMapper))

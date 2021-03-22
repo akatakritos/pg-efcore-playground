@@ -8,7 +8,9 @@ namespace Demo.Api.Data
         public RecordNotFoundException(string modelName, Guid key) : base($"Failed to find {modelName} (Key={key})")
         {
         }
-        public RecordNotFoundException(string modelName, ModelKey key) : base($"Failed to find {modelName} (Key={key.Key} Version={key.Version})")
+
+        public RecordNotFoundException(string modelName, ModelKey key) : base(
+            $"Failed to find {modelName} (Key={key.Key} Version={key.Version})")
         {
         }
     }

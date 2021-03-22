@@ -18,7 +18,6 @@ namespace Demo.Api.Customers
             CreateMap<EditCustomerCommand, Customer>()
                 .ForMember(d => d.Orders, x => x.Ignore())
                 .IgnoreUneditableModelFields();
-
         }
     }
 }

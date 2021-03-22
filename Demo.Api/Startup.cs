@@ -57,13 +57,13 @@ namespace Demo.Api
                 .AddJsonOptions(opt => opt.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Demo.Api", Version = "v1"});
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo.Api", Version = "v1" });
 
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
-                c.MapType<Instant>(() => new OpenApiSchema {Type = "string", Format = "date-time"});
+                c.MapType<Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
             });
 
             services.AddDbContext<PlaygroundContext>(options =>
@@ -216,11 +216,13 @@ namespace Demo.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions
                 {
-                    ResponseWriter = async (context, report) => await JsonSerializer.SerializeAsync(context.Response.Body, HealthCheckResponse.FromHealthReport(report), new JsonSerializerOptions(){ WriteIndented = true})
+                    ResponseWriter = async (context, report) =>
+                        await JsonSerializer.SerializeAsync(context.Response.Body,
+                            HealthCheckResponse.FromHealthReport(report),
+                            new JsonSerializerOptions { WriteIndented = true })
                 });
-
             });
             // If, for some reason, you need a reference to the built container, you
             // can use the convenience extension method GetAutofacRoot.
@@ -257,16 +259,19 @@ namespace Demo.Api
         public IEnumerable<IndividualHealthCheckResponse> HealthChecks { get; set; }
         public double HealthCheckDuration { get; set; }
 
-        public static HealthCheckResponse FromHealthReport(HealthReport report) => new HealthCheckResponse()
+        public static HealthCheckResponse FromHealthReport(HealthReport report)
         {
-            Status = report.Status.ToString(),
-            HealthChecks = report.Entries.Select(x => new IndividualHealthCheckResponse
+            return new()
             {
-                Component = x.Key,
-                Status = x.Value.Status.ToString(),
-                Description = x.Value.Description
-            }),
-            HealthCheckDuration = report.TotalDuration.TotalMilliseconds
-        };
+                Status = report.Status.ToString(),
+                HealthChecks = report.Entries.Select(x => new IndividualHealthCheckResponse
+                {
+                    Component = x.Key,
+                    Status = x.Value.Status.ToString(),
+                    Description = x.Value.Description
+                }),
+                HealthCheckDuration = report.TotalDuration.TotalMilliseconds
+            };
+        }
     }
 }

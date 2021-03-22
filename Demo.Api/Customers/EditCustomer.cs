@@ -30,8 +30,8 @@ namespace Demo.Api.Customers
 
     public class EditCustomerCommandHandler : IRequestHandler<EditCustomerCommand, ModelKey>
     {
-        private readonly IMapper _mapper;
         private readonly PlaygroundContext _context;
+        private readonly IMapper _mapper;
 
         public EditCustomerCommandHandler(IMapper mapper, PlaygroundContext context)
         {
@@ -45,13 +45,15 @@ namespace Demo.Api.Customers
                 .Where(c => c.Key == request.ModelKey.Key && c.Version == request.ModelKey.Version)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (existing == null) throw new RecordNotFoundException(nameof(Customer), request.ModelKey);
+            if (existing == null)
+            {
+                throw new RecordNotFoundException(nameof(Customer), request.ModelKey);
+            }
 
             _mapper.Map(request, existing);
 
             await _context.SaveChangesAsync(cancellationToken);
-            return new ModelKey() {Key = existing.Key, Version = existing.Version};
+            return new ModelKey { Key = existing.Key, Version = existing.Version };
         }
     }
-
 }

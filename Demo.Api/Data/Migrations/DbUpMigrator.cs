@@ -9,7 +9,7 @@ namespace Demo.Api.Data.Migrations
 {
     public class DbUpMigrator
     {
-        private static ILogger _log = Log.ForContext<DbUpMigrator>();
+        private static readonly ILogger _log = Log.ForContext<DbUpMigrator>();
 
         private readonly string _connectionString;
 
@@ -20,7 +20,6 @@ namespace Demo.Api.Data.Migrations
 
         public void Migrate()
         {
-
             bool IsRerunnableMigration(string filename)
             {
                 return filename.StartsWith("Demo.Api.Data.Migrations.R");
@@ -59,11 +58,12 @@ namespace Demo.Api.Data.Migrations
 
     public class DbUpMigrationException : Exception
     {
-        public SqlScript ErrorScript { get; }
-
-        public DbUpMigrationException(string message, DatabaseUpgradeResult result) : base(message + ": " + result.ErrorScript?.Name, result.Error)
+        public DbUpMigrationException(string message, DatabaseUpgradeResult result) : base(
+            message + ": " + result.ErrorScript?.Name, result.Error)
         {
             ErrorScript = result.ErrorScript;
         }
+
+        public SqlScript ErrorScript { get; }
     }
 }
