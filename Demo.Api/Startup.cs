@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Demo.Api.Data;
@@ -9,10 +12,12 @@ using Demo.Api.Data.Migrations;
 using Demo.Api.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using NodaTime;
@@ -65,11 +70,11 @@ namespace Demo.Api
             {
                 options.UseNpgsql(Configuration.GetConnectionString("Postgres"),
                         o => o.UseNodaTime())
-                    .UseSnakeCaseNamingConvention()
-                    .EnableSensitiveDataLogging();
+                    .UseSnakeCaseNamingConvention();
 
                 if (Environment.IsDevelopment())
                 {
+                    options.EnableSensitiveDataLogging();
                     options.UseLoggerFactory(new SerilogLoggerFactory());
                 }
             });
@@ -133,7 +138,7 @@ namespace Demo.Api
 
                 // (Optional) You can disable MVC view profiling
                 // (defaults to true, and views are profiled)
-                options.EnableMvcViewProfiling = true;
+                options.EnableMvcViewProfiling = false;
                 // ...or only save views that take over a certain millisecond duration (including their children)
                 // (defaults to null, and all views are profiled)
                 // options.MvcViewMinimumSaveMs = 1.0m;
@@ -148,6 +153,8 @@ namespace Demo.Api
             }).AddEntityFramework();
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddHealthChecks()
+                .AddDbContextCheck<PlaygroundContext>();
         }
 
         // ConfigureContainer is where you can register things directly
@@ -192,7 +199,6 @@ namespace Demo.Api
         {
             if (env.IsDevelopment())
             {
-                // app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Demo.Api v1"));
             }
@@ -205,7 +211,15 @@ namespace Demo.Api
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
+                {
+                    ResponseWriter = async (context, report) => await JsonSerializer.SerializeAsync(context.Response.Body, HealthCheckResponse.FromHealthReport(report), new JsonSerializerOptions(){ WriteIndented = true})
+                });
+
+            });
             // If, for some reason, you need a reference to the built container, you
             // can use the convenience extension method GetAutofacRoot.
             AutofacContainer = app.ApplicationServices.GetAutofacRoot();
@@ -226,5 +240,31 @@ namespace Demo.Api
                 throw;
             }
         }
+    }
+
+    public class IndividualHealthCheckResponse
+    {
+        public string Status { get; set; }
+        public string Component { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class HealthCheckResponse
+    {
+        public string Status { get; set; }
+        public IEnumerable<IndividualHealthCheckResponse> HealthChecks { get; set; }
+        public double HealthCheckDuration { get; set; }
+
+        public static HealthCheckResponse FromHealthReport(HealthReport report) => new HealthCheckResponse()
+        {
+            Status = report.Status.ToString(),
+            HealthChecks = report.Entries.Select(x => new IndividualHealthCheckResponse
+            {
+                Component = x.Key,
+                Status = x.Value.Status.ToString(),
+                Description = x.Value.Description
+            }),
+            HealthCheckDuration = report.TotalDuration.TotalMilliseconds
+        };
     }
 }
