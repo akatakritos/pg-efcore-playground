@@ -1,6 +1,4 @@
-using System.Linq;
 using Autofac;
-using Demo.Api.Customers;
 using MediatR;
 
 namespace Demo.Api.Infrastructure.ServiceRegistration
@@ -22,15 +20,18 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
                 return t => c.Resolve(t);
             });
 
-            // pipelines
-            builder.RegisterGeneric(typeof(ValidationBehavior<,>))
-                .As(typeof(IPipelineBehavior<,>))
-                .InstancePerLifetimeScope();
 
-            // handlers
-            builder.RegisterAssemblyTypes(ThisAssembly)
-                .Where(type => type.ImplementsInterface(typeof(IRequestHandler<>)) || type.ImplementsInterface(typeof(IRequestHandler<,>)))
-                .AsImplementedInterfaces();
+            var mediatrPlugins = new[]
+            {
+                typeof(IRequestHandler<>), typeof(IRequestHandler<,>), typeof(IPipelineBehavior<,>)
+            };
+
+            foreach (var @interface in mediatrPlugins)
+            {
+                builder.RegisterAssemblyTypes(ThisAssembly)
+                    .AsClosedTypesOf(@interface)
+                    .InstancePerDependency();
+            }
         }
     }
 }
