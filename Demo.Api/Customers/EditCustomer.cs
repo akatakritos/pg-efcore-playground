@@ -18,7 +18,6 @@ namespace Demo.Api.Customers
     public class EditCustomerCommand : EditCustomerRequest, IRequest<ModelKey>
     {
         public ModelKey ModelKey { get; set; }
-        public string Name { get; set; }
     }
 
     public class EditCustomerCommandValidator : AbstractValidator<EditCustomerCommand>

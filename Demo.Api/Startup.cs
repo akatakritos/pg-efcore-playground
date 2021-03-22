@@ -154,7 +154,8 @@ namespace Demo.Api
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddHealthChecks()
-                .AddDbContextCheck<PlaygroundContext>();
+                .AddDbContextCheck<PlaygroundContext>()
+                .AddCheck<CustomHealthCheck>("Custom Check");
         }
 
         // ConfigureContainer is where you can register things directly
@@ -207,6 +208,7 @@ namespace Demo.Api
             app.UseHttpsRedirection();
             app.UseMiniProfiler();
 
+            app.UseSerilogRequestLogging();
             app.UseRouting();
 
             app.UseAuthorization();
