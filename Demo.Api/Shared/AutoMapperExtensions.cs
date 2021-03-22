@@ -1,16 +1,19 @@
 using System;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Linq.Expressions;
 using AutoMapper;
 using Demo.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Demo.Api.Shared
 {
     internal static class AutoMapperExtensions
     {
-        public static IMappingExpression<TModel, TMessage> IncludeModelKey<TModel, TMessage>(this IMappingExpression<TModel, TMessage> exp) where TModel:
-
-        ModelBase where TMessage : IModelKeyed
+        public static IMappingExpression<TModel, TMessage> IncludeModelKey<TModel, TMessage>(
+            this IMappingExpression<TModel, TMessage> exp) where TModel :
+            ModelBase
+            where TMessage : IModelKeyed
         {
             return exp.ForMember(d => d.ModelKey,
                 x => x.MapFrom(s => new ModelKey
@@ -36,11 +39,22 @@ namespace Demo.Api.Shared
                 Expression.Bind(targetModelKeyType.GetProperty("Version"), getVersionExpression)
             );
 
-            Expression<Func<TModel, ModelKey>> modelKey =
+            var modelKey =
                 Expression.Lambda<Func<TModel, ModelKey>>(init, sourceProperty.Parameters);
 
             return exp.ForMember(targetProperty, x => x.MapFrom(modelKey));
+        }
 
+        public static IMappingExpression<TCmd, TModel> IgnoreUneditableModelFields<TCmd, TModel>(
+            this IMappingExpression<TCmd, TModel> exp) where TModel : ModelBase
+        {
+            return exp
+                .ForMember(d => d.Id, x => x.Ignore())
+                .ForMember(d => d.CreatedAt, x => x.Ignore())
+                .ForMember(d => d.UpdatedAt, x => x.Ignore())
+                .ForMember(d => d.DeletedAt, x => x.Ignore())
+                .ForMember(d => d.Key, x => x.Ignore())
+                .ForMember(d => d.Version, x => x.Ignore());
         }
     }
 }

@@ -1,12 +1,12 @@
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using Demo.Api.Data;
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using Microsoft.FSharp.Control;
 
 namespace Demo.Api.Controllers
 {
@@ -14,12 +14,15 @@ namespace Demo.Api.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ErrorController : ControllerBase
     {
-
-        private int GetStatusCode(Exception e) => e switch
+        private (int, ErrorResponse) GetStatusCode(Exception e)
         {
-            RecordNotFoundException => 404,
-            _ => 500
-        };
+            return e switch
+            {
+                RecordNotFoundException => (404, new ErrorResponse(e)),
+                ValidationException v => (400, new ValidationErrorResponse(v)),
+                _ => (500, new ErrorResponse(e))
+            };
+        }
 
         [Route("/error")]
         public ErrorResponse Error([FromServices] IWebHostEnvironment webHostEnvironment)
@@ -27,18 +30,44 @@ namespace Demo.Api.Controllers
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context.Error;
 
-            Response.StatusCode = GetStatusCode(exception);
-            return new ErrorResponse()
+            var (statusCode, response) = GetStatusCode(exception);
+
+            Response.StatusCode = statusCode;
+            if (webHostEnvironment.IsProduction())
             {
-                Message = exception.Message,
-                StackTrace = webHostEnvironment.IsDevelopment() ? exception.StackTrace : null
-            };
+                response.StackTrace = null;
+            }
+
+            return response;
         }
     }
 
     public class ErrorResponse
     {
-        public string Message { get; set;}
-        public string StackTrace { get; set;}
+        public ErrorResponse(Exception e)
+        {
+            Message = e.Message;
+            StackTrace = e.StackTrace;
+        }
+
+        public string Message { get; }
+        public string StackTrace { get; set; }
+    }
+
+    public class ValidationErrorResponse : ErrorResponse
+    {
+        public ValidationErrorResponse(ValidationException v) : base(v)
+        {
+            ValidationFailures = v.Errors.Select(e => new ValidationFailure
+                {PropertyName = e.PropertyName, ErrorMessage = e.ErrorMessage});
+        }
+
+        public IEnumerable<ValidationFailure> ValidationFailures { get; }
+    }
+
+    public class ValidationFailure
+    {
+        public string PropertyName { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

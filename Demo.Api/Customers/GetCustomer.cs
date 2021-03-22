@@ -12,12 +12,12 @@ using NodaTime;
 
 namespace Demo.Api.Customers
 {
-    public class GetCustomerResponse: IModelKeyed
+    public class GetCustomerResponse : IModelKeyed
     {
-        public ModelKey ModelKey { get; set; }
         public string Name { get; set; }
         public Instant CreatedAt { get; set; }
         public Instant UpdatedAt { get; set; }
+        public ModelKey ModelKey { get; set; }
     }
 
     public class GetCustomerRequest : IRequest<GetCustomerResponse>

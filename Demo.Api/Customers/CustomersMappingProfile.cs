@@ -10,7 +10,15 @@ namespace Demo.Api.Customers
         {
             CreateMap<Customer, GetCustomerResponse>()
                 .IncludeModelKey();
-        }
 
+            CreateMap<CreateCustomerRequest, Customer>()
+                .ForMember(d => d.Orders, x => x.Ignore())
+                .IgnoreUneditableModelFields();
+
+            CreateMap<EditCustomerCommand, Customer>()
+                .ForMember(d => d.Orders, x => x.Ignore())
+                .IgnoreUneditableModelFields();
+
+        }
     }
 }

@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Demo.Api.Data;
@@ -12,18 +9,16 @@ using Demo.Api.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 using Serilog.Extensions.Logging;
-using StackExchange.Profiling.Storage;
+using StackExchange.Profiling;
+using StackExchange.Profiling.SqlFormatters;
 
 namespace Demo.Api
 {
@@ -61,7 +56,7 @@ namespace Demo.Api
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
-                c.MapType<Instant>(() => new OpenApiSchema() {Type = "string", Format = "date-time"});
+                c.MapType<Instant>(() => new OpenApiSchema {Type = "string", Format = "date-time"});
             });
 
             services.AddDbContext<PlaygroundContext>(options =>
@@ -76,7 +71,6 @@ namespace Demo.Api
                     options.UseLoggerFactory(new SerilogLoggerFactory());
                 }
             });
-            services.AddAutoMapper(typeof(Startup));
 
             TypeDescriptor.AddAttributes(typeof(Instant), new TypeConverterAttribute(typeof(InstantTypeConverter)));
 
@@ -94,7 +88,7 @@ namespace Demo.Api
                 // (options.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
 
                 // (Optional) Control which SQL formatter to use, InlineFormatter is the default
-                options.SqlFormatter = new StackExchange.Profiling.SqlFormatters.InlineFormatter();
+                options.SqlFormatter = new InlineFormatter();
 
                 // (Optional) To control authorization, you can use the Func<HttpRequest, bool> options:
                 // (default is everyone can access profilers)
@@ -124,7 +118,7 @@ namespace Demo.Api
 
                 // (Optional) Use something other than the "light" color scheme.
                 // (defaults to "light")
-                options.ColorScheme = StackExchange.Profiling.ColorScheme.Auto;
+                options.ColorScheme = ColorScheme.Auto;
 
                 // The below are newer options, available in .NET Core 3.0 and above:
 
@@ -150,6 +144,8 @@ namespace Demo.Api
                 // (defaults to false, debug/heavy mode is off)
                 //options.EnableDebugMode = true;
             }).AddEntityFramework();
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         }
 
         // ConfigureContainer is where you can register things directly
@@ -180,6 +176,7 @@ namespace Demo.Api
             // - requests & handlers as transient, i.e. InstancePerDependency()
             // - pre/post-processors as scoped/per-request, i.e. InstancePerLifetimeScope()
             // - behaviors as transient, i.e. InstancePerDependency()
+            builder.RegisterModule(new AutoMapperModule(Environment.IsDevelopment(), typeof(Startup).Assembly));
             builder.RegisterAssemblyTypes(typeof(Startup).Assembly).AsImplementedInterfaces();
             //builder.RegisterType<MyHandler>().AsImplementedInterfaces().InstancePerDependency();          // or individually
         }

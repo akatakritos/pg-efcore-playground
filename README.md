@@ -9,3 +9,4 @@ Demonstrates some common patterns we use at work in EF Core and PG
 - enum "lib" tables
 - noda time
 - automapper: smaller public footprint, combined ModelKey idea. projections
+- miniprofiler https://localhost:5001/profiler/results-index

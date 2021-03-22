@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 using Demo.Api.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Options;
 using NodaTime;
 
 namespace Demo.Api.Data
 {
     public class PlaygroundContext : DbContext
     {
+        public PlaygroundContext(DbContextOptions<PlaygroundContext> options) : base(options)
+        {
+        }
+
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<LineItem> LineItems { get; set; }
 
-        public PlaygroundContext(DbContextOptions<PlaygroundContext> options) : base(options)
-        {
-        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -69,7 +69,7 @@ namespace Demo.Api.Data
             entity.HasQueryFilter(e => e.DeletedAt == null);
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
         {
             // expensive to do three times, do once and switch on state
             var added = ChangeTracker.Entries().Where(e => e.State == EntityState.Added);
@@ -82,7 +82,7 @@ namespace Demo.Api.Data
                 {
                     model.CreatedAt = SystemClock.Instance.GetCurrentInstant();
                     model.UpdatedAt = model.CreatedAt;
-                    model.Version++;
+                    model.Version = 1;
                     if (model.Key == Guid.Empty)
                     {
                         model.Key = Guid.NewGuid();
@@ -95,6 +95,7 @@ namespace Demo.Api.Data
                 if (entity.Entity is ModelBase model)
                 {
                     model.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+                    model.Version++;
                 }
             }
 
@@ -111,15 +112,15 @@ namespace Demo.Api.Data
         }
     }
 
-    public class ModelBase :  IModel
+    public class ModelBase : IModel
     {
         public int Id { get; set; }
-        public Guid Key { get; set; } = Guid.NewGuid();
-        public int Version { get; set; } = 1;
 
         public Instant CreatedAt { get; set; }
         public Instant UpdatedAt { get; set; }
         public Instant? DeletedAt { get; set; }
+        public Guid Key { get; set; } = Guid.NewGuid();
+        public int Version { get; set; } = 1;
     }
 
     public class Customer : ModelBase
@@ -150,5 +151,4 @@ namespace Demo.Api.Data
         public int ItemCount { get; set; }
         public decimal UnitPrice { get; set; }
     }
-
 }
