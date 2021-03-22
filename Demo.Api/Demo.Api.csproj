@@ -18,6 +18,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0" NoWarn="NU1605" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0" NoWarn="NU1605" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.4" />
+        <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.22" />
+        <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.22" />
         <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.0.0" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="5.0.2" />
