@@ -29,7 +29,7 @@ namespace Demo.Api.Controllers
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         public async Task<IActionResult> Get(Guid key)
         {
-            return Ok(await _mediator.Send(new GetCustomerRequest {Key = key}));
+            return Ok(await _mediator.Send(new GetCustomerRequest { Key = key }));
         }
 
         /// <summary>
@@ -46,15 +46,16 @@ namespace Demo.Api.Controllers
             return StatusCode(201, result);
         }
 
-        [HttpPatch("{key};{version}")]
+        [HttpPut("{key};{version}")]
         [ProducesResponseType(typeof(ModelKey), 201)]
         [ProducesResponseType(typeof(ValidationErrorResponse), 400)]
+        [ProducesResponseType(typeof(ErrorResponse), 404)]
         public async Task<IActionResult> Patch(Guid key, int version, [FromBody] EditCustomerRequest request)
         {
-            var cmd = new EditCustomerCommand()
+            var cmd = new EditCustomerCommand
             {
                 Name = request.Name,
-                ModelKey = new ModelKey() {Key = key, Version = version}
+                ModelKey = new ModelKey { Key = key, Version = version }
             };
 
             return StatusCode(201, await _mediator.Send(cmd));
