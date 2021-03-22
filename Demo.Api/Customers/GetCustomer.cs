@@ -45,7 +45,7 @@ namespace Demo.Api.Customers
 
             if (customer == null)
             {
-                throw new RecordNotFoundException<Customer>(request.Key);
+                throw new RecordNotFoundException(nameof(Customer), request.Key);
             }
 
             return customer;

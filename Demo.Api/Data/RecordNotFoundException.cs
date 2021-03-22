@@ -2,9 +2,9 @@ using System;
 
 namespace Demo.Api.Data
 {
-    public class RecordNotFoundException<TModel> : Exception
+    public class RecordNotFoundException : Exception
     {
-        public RecordNotFoundException(Guid key) : base($"Failed to find ${typeof(TModel).Name} (Key={key})")
+        public RecordNotFoundException(string modelName, Guid key) : base($"Failed to find {modelName} (Key={key})")
         {
         }
     }
