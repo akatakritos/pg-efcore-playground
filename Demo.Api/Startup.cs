@@ -5,12 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Demo.Api.Data;
 using Demo.Api.Data.Migrations;
 using Demo.Api.Infrastructure;
 using MediatR;
+using MicroElements.Swashbuckle.NodaTime;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -20,12 +22,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 using Serilog;
 using Serilog.Extensions.Logging;
 using StackExchange.Profiling;
 using StackExchange.Profiling.SqlFormatters;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Demo.Api
 {
@@ -47,6 +51,15 @@ namespace Demo.Api
         // called by the runtime before the ConfigureContainer method, below.
         public void ConfigureServices(IServiceCollection services)
         {
+            void ConfigureSystemTextJsonSerializerSettings(JsonSerializerOptions serializerOptions)
+            {
+                // Configures JsonSerializer to properly serialize NodaTime types.
+                serializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+                serializerOptions.Converters.Add(new JsonStringEnumConverter());
+
+                //serializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+            }
+
             // Add services to the collection. Don't build or return
             // any IServiceProvider or the ConfigureContainer method
             // won't get called. Don't create a ContainerBuilder
@@ -54,7 +67,11 @@ namespace Demo.Api
             // happens in the AutofacServiceProviderFactory for you.
             services.AddOptions();
             services.AddControllers()
-                .AddJsonOptions(opt => opt.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
+                .AddJsonOptions(opt =>
+                {
+                    ConfigureSystemTextJsonSerializerSettings(opt.JsonSerializerOptions);
+                });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo.Api", Version = "v1" });
@@ -63,7 +80,12 @@ namespace Demo.Api
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
-                c.MapType<Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
+
+                //c.MapType<Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
+
+                JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
+                ConfigureSystemTextJsonSerializerSettings(jsonSerializerOptions);
+                c.ConfigureForNodaTimeWithSystemTextJson(jsonSerializerOptions);
             });
 
             services.AddDbContext<PlaygroundContext>(options =>

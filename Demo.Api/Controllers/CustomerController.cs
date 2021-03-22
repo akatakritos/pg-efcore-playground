@@ -60,5 +60,13 @@ namespace Demo.Api.Controllers
 
             return StatusCode(201, await _mediator.Send(cmd));
         }
+
+        [HttpGet("")]
+        [ProducesResponseType(typeof(ModelKey), 201)]
+        [ProducesResponseType(typeof(ValidationErrorResponse), 400)]
+        public async Task<IActionResult> Search([FromQuery] SearchCustomersRequest request)
+        {
+            return Ok(await _mediator.Send(request));
+        }
     }
 }
