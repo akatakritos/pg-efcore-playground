@@ -1,35 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Demo.Api.Data;
 using Demo.Api.Data.Migrations;
 using Demo.Api.Infrastructure;
+using Demo.Api.Infrastructure.ServiceRegistration;
 using MediatR;
-using MicroElements.Swashbuckle.NodaTime;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using NodaTime;
-using NodaTime.Serialization.SystemTextJson;
 using Serilog;
-using Serilog.Extensions.Logging;
-using StackExchange.Profiling;
-using StackExchange.Profiling.SqlFormatters;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Demo.Api
 {
@@ -43,141 +23,28 @@ namespace Demo.Api
 
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
-
-
         public ILifetimeScope AutofacContainer { get; private set; }
 
-        // ConfigureServices is where you register dependencies. This gets
-        // called by the runtime before the ConfigureContainer method, below.
+        // Default registration stuff
         public void ConfigureServices(IServiceCollection services)
         {
-            void ConfigureSystemTextJsonSerializerSettings(JsonSerializerOptions serializerOptions)
-            {
-                // Configures JsonSerializer to properly serialize NodaTime types.
-                serializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
-                serializerOptions.Converters.Add(new JsonStringEnumConverter());
-
-                //serializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            }
-
-            // Add services to the collection. Don't build or return
-            // any IServiceProvider or the ConfigureContainer method
-            // won't get called. Don't create a ContainerBuilder
-            // for Autofac here, and don't call builder.Populate() - that
-            // happens in the AutofacServiceProviderFactory for you.
             services.AddOptions();
+
             services.AddControllers()
                 .AddJsonOptions(opt =>
                 {
-                    ConfigureSystemTextJsonSerializerSettings(opt.JsonSerializerOptions);
+                    JsonConfiguration.ConfigureSystemTextJson(opt.JsonSerializerOptions);
                 });
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo.Api", Version = "v1" });
 
-                // Set the comments path for the Swagger JSON and UI.
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
+            services.AddAppSwaggerGen();
+            services.AddPlaygroundContext(Configuration, Environment);
+            services.AddAppMiniProfiler();
 
-                //c.MapType<Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
-
-                JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
-                ConfigureSystemTextJsonSerializerSettings(jsonSerializerOptions);
-                c.ConfigureForNodaTimeWithSystemTextJson(jsonSerializerOptions);
-            });
-
-            services.AddDbContext<PlaygroundContext>(options =>
-            {
-                options.UseNpgsql(Configuration.GetConnectionString("Postgres"),
-                        o => o.UseNodaTime())
-                    .UseSnakeCaseNamingConvention();
-
-                if (Environment.IsDevelopment())
-                {
-                    options.EnableSensitiveDataLogging();
-                    options.UseLoggerFactory(new SerilogLoggerFactory());
-                }
-            });
-
-            TypeDescriptor.AddAttributes(typeof(Instant), new TypeConverterAttribute(typeof(InstantTypeConverter)));
-
-            services.AddMiniProfiler(options =>
-            {
-                // All of this is optional. You can simply call .AddMiniProfiler() for all defaults
-
-                // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
-                options.RouteBasePath = "/profiler";
-
-                // (Optional) Control storage
-                // (default is 30 minutes in MemoryCacheStorage)
-                // Note: MiniProfiler will not work if a SizeLimit is set on MemoryCache!
-                //   See: https://github.com/MiniProfiler/dotnet/issues/501 for details
-                // (options.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
-
-                // (Optional) Control which SQL formatter to use, InlineFormatter is the default
-                options.SqlFormatter = new InlineFormatter();
-
-                // (Optional) To control authorization, you can use the Func<HttpRequest, bool> options:
-                // (default is everyone can access profilers)
-                // options.ResultsAuthorize = request => MyGetUserFunction(request).CanSeeMiniProfiler;
-                // options.ResultsListAuthorize = request => MyGetUserFunction(request).CanSeeMiniProfiler;
-                // Or, there are async versions available:
-                // options.ResultsAuthorizeAsync =
-                //     async request => (await MyGetUserFunctionAsync(request)).CanSeeMiniProfiler;
-                // options.ResultsAuthorizeListAsync = async request =>
-                //     (await MyGetUserFunctionAsync(request)).CanSeeMiniProfilerLists;
-
-                // (Optional)  To control which requests are profiled, use the Func<HttpRequest, bool> option:
-                // (default is everything should be profiled)
-                // options.ShouldProfile = request => MyShouldThisBeProfiledFunction(request);
-
-                // (Optional) Profiles are stored under a user ID, function to get it:
-                // (default is null, since above methods don't use it by default)
-                // options.UserIdProvider = request => MyGetUserIdFunction(request);
-
-                // (Optional) Swap out the entire profiler provider, if you want
-                // (default handles async and works fine for almost all applications)
-                // options.ProfilerProvider = new MyProfilerProvider();
-
-                // (Optional) You can disable "Connection Open()", "Connection Close()" (and async variant) tracking.
-                // (defaults to true, and connection opening/closing is tracked)
-                options.TrackConnectionOpenClose = true;
-
-                // (Optional) Use something other than the "light" color scheme.
-                // (defaults to "light")
-                options.ColorScheme = ColorScheme.Auto;
-
-                // The below are newer options, available in .NET Core 3.0 and above:
-
-                // (Optional) You can disable MVC filter profiling
-                // (defaults to true, and filters are profiled)
-                options.EnableMvcFilterProfiling = true;
-                // ...or only save filters that take over a certain millisecond duration (including their children)
-                // (defaults to null, and all filters are profiled)
-                // options.MvcFilterMinimumSaveMs = 1.0m;
-
-                // (Optional) You can disable MVC view profiling
-                // (defaults to true, and views are profiled)
-                options.EnableMvcViewProfiling = false;
-                // ...or only save views that take over a certain millisecond duration (including their children)
-                // (defaults to null, and all views are profiled)
-                // options.MvcViewMinimumSaveMs = 1.0m;
-
-                // (Optional) listen to any errors that occur within MiniProfiler itself
-                // options.OnInternalError = e => MyExceptionLogger(e);
-
-                // (Optional - not recommended) You can enable a heavy debug mode with stacks and tooltips when using memory storage
-                // It has a lot of overhead vs. normal profiling and should only be used with that in mind
-                // (defaults to false, debug/heavy mode is off)
-                //options.EnableDebugMode = true;
-            }).AddEntityFramework();
+            // TypeDescriptor.AddAttributes(typeof(Instant), new TypeConverterAttribute(typeof(InstantTypeConverter)));
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            services.AddHealthChecks()
-                .AddDbContextCheck<PlaygroundContext>()
-                .AddCheck<CustomHealthCheck>("Custom Check");
+            services.AddAppHealthChecks();
         }
 
         // ConfigureContainer is where you can register things directly
@@ -186,31 +53,11 @@ namespace Demo.Api
         // Don't build the container; that gets done for you by the factory.
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            // Register your own things directly with Autofac here. Don't
-            // call builder.Populate(), that happens in AutofacServiceProviderFactory
-            // for you.
             // builder.RegisterModule(new MyApplicationModule());
 
-            // Mediator itself
-            builder
-                .RegisterType<Mediator>()
-                .As<IMediator>()
-                .InstancePerLifetimeScope();
-
-            // request & notification handlers
-            builder.Register<ServiceFactory>(context =>
-            {
-                var c = context.Resolve<IComponentContext>();
-                return t => c.Resolve(t);
-            });
-
-            // finally register our custom code (individually, or via assembly scanning)
-            // - requests & handlers as transient, i.e. InstancePerDependency()
-            // - pre/post-processors as scoped/per-request, i.e. InstancePerLifetimeScope()
-            // - behaviors as transient, i.e. InstancePerDependency()
+            builder.RegisterModule(new MediatrModule());
+            builder.RegisterModule(new ValidationModule());
             builder.RegisterModule(new AutoMapperModule(Environment.IsDevelopment(), typeof(Startup).Assembly));
-            builder.RegisterAssemblyTypes(typeof(Startup).Assembly).AsImplementedInterfaces();
-            //builder.RegisterType<MyHandler>().AsImplementedInterfaces().InstancePerDependency();          // or individually
         }
 
         // Configure is where you add middleware. This is called after
@@ -238,14 +85,9 @@ namespace Demo.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks("/health", new HealthCheckOptions
-                {
-                    ResponseWriter = async (context, report) =>
-                        await JsonSerializer.SerializeAsync(context.Response.Body,
-                            HealthCheckResponse.FromHealthReport(report),
-                            new JsonSerializerOptions { WriteIndented = true })
-                });
+                endpoints.MapAppHealthChecks();
             });
+
             // If, for some reason, you need a reference to the built container, you
             // can use the convenience extension method GetAutofacRoot.
             AutofacContainer = app.ApplicationServices.GetAutofacRoot();
@@ -265,35 +107,6 @@ namespace Demo.Api
                 Log.Logger.Fatal(ex, "Failed at migrating");
                 throw;
             }
-        }
-    }
-
-    public class IndividualHealthCheckResponse
-    {
-        public string Status { get; set; }
-        public string Component { get; set; }
-        public string Description { get; set; }
-    }
-
-    public class HealthCheckResponse
-    {
-        public string Status { get; set; }
-        public IEnumerable<IndividualHealthCheckResponse> HealthChecks { get; set; }
-        public double HealthCheckDuration { get; set; }
-
-        public static HealthCheckResponse FromHealthReport(HealthReport report)
-        {
-            return new()
-            {
-                Status = report.Status.ToString(),
-                HealthChecks = report.Entries.Select(x => new IndividualHealthCheckResponse
-                {
-                    Component = x.Key,
-                    Status = x.Value.Status.ToString(),
-                    Description = x.Value.Description
-                }),
-                HealthCheckDuration = report.TotalDuration.TotalMilliseconds
-            };
         }
     }
 }
