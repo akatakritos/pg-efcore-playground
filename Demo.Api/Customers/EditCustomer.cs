@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Demo.Api.Data;
+using Demo.Api.Infrastructure;
 using Demo.Api.Shared;
 using FluentValidation;
 using MediatR;
@@ -15,9 +16,14 @@ namespace Demo.Api.Customers
         public string Name { get; set; }
     }
 
-    public class EditCustomerCommand : EditCustomerRequest, IRequest<ModelKey>
+    public class EditCustomerCommand : EditCustomerRequest, IRequest<ModelKey>, ICacheInvalidationRequest
     {
         public ModelKey ModelKey { get; set; }
+
+        string ICacheInvalidationRequest.GetCacheKeyToInvalidate()
+        {
+            return ModelKey.Key.ToString();
+        }
     }
 
     public class EditCustomerCommandValidator : AbstractValidator<EditCustomerCommand>

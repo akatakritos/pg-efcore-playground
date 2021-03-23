@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Demo.Api.Data;
+using Demo.Api.Infrastructure;
 using Demo.Api.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -20,9 +21,16 @@ namespace Demo.Api.Customers
         public ModelKey ModelKey { get; set; }
     }
 
-    public class GetCustomerRequest : IRequest<GetCustomerResponse>
+    public class GetCustomerRequest : IRequest<GetCustomerResponse>, ICacheableRequest
     {
         public Guid Key { get; set; }
+
+        // this is actually pretty terrible, it will never get reset from the cache
+        // and you wont be able to load new versions, but its here as an example
+        string ICacheableRequest.GetCacheKey()
+        {
+            return Key.ToString();
+        }
     }
 
     public class GetCustomerRequestHandler : IRequestHandler<GetCustomerRequest, GetCustomerResponse>

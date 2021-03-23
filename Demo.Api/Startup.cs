@@ -1,5 +1,7 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Dapper;
+using Demo.Api.Data;
 using Demo.Api.Data.Migrations;
 using Demo.Api.Infrastructure;
 using Demo.Api.Infrastructure.ServiceRegistration;
@@ -43,7 +45,6 @@ namespace Demo.Api
 
             // TypeDescriptor.AddAttributes(typeof(Instant), new TypeConverterAttribute(typeof(InstantTypeConverter)));
 
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddAppHealthChecks();
         }
 
@@ -58,6 +59,10 @@ namespace Demo.Api
             builder.RegisterModule(new MediatrModule());
             builder.RegisterModule(new ValidationModule());
             builder.RegisterModule(new AutoMapperModule(Environment.IsDevelopment(), typeof(Startup).Assembly));
+
+            SqlMapper.AddTypeHandler(InstantHandler.Default);
+            builder.Register(_ => new PostgresDatabase(Configuration.GetConnectionString("Postgres")))
+                .AsImplementedInterfaces();
         }
 
         // Configure is where you add middleware. This is called after

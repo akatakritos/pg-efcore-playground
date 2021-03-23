@@ -68,5 +68,12 @@ namespace Demo.Api.Controllers
         {
             return Ok(await _mediator.Send(request));
         }
+
+        [HttpGet("new-customers")]
+        [ProducesResponseType(typeof(NewCustomerReportResult), 200)]
+        public async Task<IActionResult> GetNewCustomersReport()
+        {
+            return Ok(await _mediator.Send(new NewCustomerReportRequest()));
+        }
     }
 }
