@@ -17,14 +17,14 @@ namespace Demo.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
+        public Startup(IConfiguration configuration, IHostEnvironment environment)
         {
             Configuration = configuration;
             Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
-        public IWebHostEnvironment Environment { get; }
+        public IHostEnvironment Environment { get; }
         public ILifetimeScope AutofacContainer { get; private set; }
 
         // Default registration stuff

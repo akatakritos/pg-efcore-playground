@@ -15,7 +15,7 @@ namespace Demo.Api.Data.Migrations
 
         public DbUpMigrator(string connectionString)
         {
-            _connectionString = connectionString;
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
 
         public void Migrate()

@@ -11,7 +11,7 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
 {
     public static class PlaygroundContextRegistration
     {
-        public static void AddPlaygroundContext(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
+        public static void AddPlaygroundContext(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
             services.AddDbContext<PlaygroundContext>(options =>
             {
