@@ -11,6 +11,11 @@ namespace Demo.Api.IntegrationTests
 
         private static bool _initialized;
 
+        // xunit runs test classes in parallel, so multiple
+        // test classes could all try to hit this method at roughly the same time.
+        // thus we need tou se a mutex to only allow one through at a time. The first
+        // one through will go ahead and migrate the schema, then reset the tables
+        // back to empty
         public virtual async Task InitializeAsync()
         {
             if (_initialized)

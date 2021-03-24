@@ -55,7 +55,11 @@ namespace Demo.Api.IntegrationTests
             _scopeFactory = container.Resolve<IServiceScopeFactory>();
             _checkpoint = new Checkpoint()
             {
-                DbAdapter = DbAdapter.Postgres
+                DbAdapter = DbAdapter.Postgres,
+                TablesToIgnore = new[]
+                {
+                    "order_type_lib"
+                }
             };
 
             ConnectionString = _configuration.GetConnectionString("Postgres");
