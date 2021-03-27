@@ -20,6 +20,24 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
 
+                c.MapType<decimal>(() => new OpenApiSchema()
+                {
+                    Type = "string",
+                    Format = "decimal"
+                });
+
+                c.MapType<int>(() => new OpenApiSchema()
+                {
+                    Type = "string",
+                    Format = "int32"
+                });
+
+                c.MapType<long>(() => new OpenApiSchema()
+                {
+                    Type = "string",
+                    Format = "int64"
+                });
+
                 JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
                 JsonConfiguration.ConfigureSystemTextJson(jsonSerializerOptions);
                 c.ConfigureForNodaTimeWithSystemTextJson(jsonSerializerOptions);

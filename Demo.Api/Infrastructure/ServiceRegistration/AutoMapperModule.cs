@@ -47,13 +47,7 @@ namespace Demo.Api.Infrastructure
 
             builder.Register<IConfigurationProvider>(ctx =>
                 {
-                    var config = new MapperConfiguration(cfg => cfg.AddMaps(assembliesToScan));
-
-
-                    if (_assertConfiguration)
-                    {
-                        config.AssertConfigurationIsValid();
-                    }
+                    var config = ScanForMapProfiles(assembliesToScan);
 
                     config.CompileMappings();
                     return config;
@@ -73,6 +67,13 @@ namespace Demo.Api.Infrastructure
         private static bool IsGenericType(Type type, Type genericType)
         {
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == genericType;
+        }
+
+        public static MapperConfiguration ScanForMapProfiles(Assembly[] assembliesToScan)
+        {
+            var config = new MapperConfiguration(cfg =>
+                cfg.AddMaps(assembliesToScan));
+            return config;
         }
     }
 }

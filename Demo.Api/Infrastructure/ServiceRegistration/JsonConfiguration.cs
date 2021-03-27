@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using NodaTime;
@@ -12,6 +13,8 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
             // Configures JsonSerializer to properly serialize NodaTime types.
             serializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
             serializerOptions.Converters.Add(new JsonStringEnumConverter());
+            serializerOptions.NumberHandling =
+                JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString;
 
             //serializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
         }

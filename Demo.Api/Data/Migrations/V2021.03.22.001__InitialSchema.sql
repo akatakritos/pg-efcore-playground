@@ -1,77 +1,89 @@
-create table if not exists customers
+create table recipes
 (
-	id serial not null
-		constraint customers_pk
-			primary key,
-	key uuid default gen_random_uuid() not null,
-	version integer default 1 not null,
-	name varchar(64) not null,
-	created_at timestamp with time zone not null,
-	updated_at timestamp with time zone not null,
-	deleted_at timestamp with time zone
+    id          bigserial                not null
+        constraint recipes_pk
+            primary key,
+    key         uuid                     not null,
+    version     integer                  not null,
+    name        varchar(256)             not null,
+    description text,
+    prep_time   interval                 not null,
+    cook_time   interval                 not null,
+    created_at  timestamp with time zone not null,
+    updated_at  timestamp with time zone not null,
+    deleted_at  timestamp with time zone
 );
 
-alter table customers owner to postgres;
+alter table recipes
+    owner to postgres;
 
-create unique index if not exists customers_key_uindex
-	on customers (key);
+create unique index recipes_key_uindex
+    on recipes (key);
 
-create table if not exists order_type_lib
+create table ingredients
 (
-	id integer not null
-		constraint order_type_lib_pk
-			primary key,
-	description text not null
+    id         bigserial                not null
+        constraint ingredients_pk
+            primary key,
+    key        uuid                     not null,
+    version    integer                  not null,
+    name       varchar(256)             not null,
+    created_at timestamp with time zone not null,
+    updated_at timestamp with time zone not null,
+    deleted_at timestamp with time zone
 );
 
-alter table order_type_lib owner to postgres;
+alter table ingredients
+    owner to postgres;
 
-create table if not exists orders
+create unique index ingredients_key_uindex
+    on ingredients (key);
+
+create unique index ingredients_name_uindex
+    on ingredients (name);
+
+create table unit_of_measure_lib
 (
-	id serial not null
-		constraint orders_pk
-			primary key,
-	key uuid default gen_random_uuid() not null,
-	version integer default 1 not null,
-	customer_id integer not null
-		constraint orders_customers_id_fk
-			references customers
-				on delete cascade,
-	created_at timestamp with time zone not null,
-	updated_at timestamp with time zone not null,
-	deleted_at timestamp with time zone,
-	order_type_id integer default 1 not null
-		constraint orders_order_type_lib_id_fk
-			references order_type_lib
-				on delete cascade
+    id   serial      not null
+        constraint unit_of_measure_lib_pk
+            primary key,
+    name varchar(64) not null
 );
 
-alter table orders owner to postgres;
+alter table unit_of_measure_lib
+    owner to postgres;
 
-create unique index if not exists orders_key_uindex
-	on orders (key);
-
-create table if not exists line_items
+create table recipe_ingredients
 (
-	id serial not null
-		constraint line_items_pk
-			primary key,
-	key uuid default gen_random_uuid() not null,
-	version integer default 1 not null,
-	order_id integer not null
-		constraint line_items_orders_id_fk
-			references orders
-				on delete cascade,
-	item_count integer not null,
-	unit_price numeric(18,2) not null,
-	created_at timestamp with time zone not null,
-	updated_at timestamp with time zone not null,
-	deleted_at timestamp with time zone,
-	product varchar(128) not null
+    recipe_id          bigint                   not null
+        constraint recipe_ingredient_recipes_id_fk
+            references recipes,
+    ingredient_id      bigint                   not null
+        constraint recipe_ingredient_ingredients_id_fk
+            references ingredients,
+    key                uuid                     not null,
+    version            integer                  not null,
+    unit_of_measure_id integer                  not null
+        constraint recipe_ingredient_unit_of_measure_lib_id_fk
+            references unit_of_measure_lib,
+    quantity           numeric                  not null,
+    created_at         timestamp with time zone not null,
+    updated_at         timestamp with time zone not null,
+    deleted_at         timestamp with time zone,
+    id                 bigserial                not null
+        constraint recipe_ingredients_pk
+            primary key
 );
 
-alter table line_items owner to postgres;
+alter table recipe_ingredients
+    owner to postgres;
 
-create unique index if not exists line_items_key_uindex
-	on line_items (key);
+create unique index recipe_ingredient_key_uindex
+    on recipe_ingredients (key);
+
+create index recipe_ingredient_recipe_id_index
+    on recipe_ingredients (recipe_id);
+
+create unique index recipe_ingredients_recipe_id_ingredient_id_uindex
+    on recipe_ingredients (recipe_id, ingredient_id);
 

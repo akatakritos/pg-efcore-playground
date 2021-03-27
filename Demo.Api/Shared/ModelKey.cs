@@ -7,6 +7,7 @@ namespace Demo.Api.Shared
         public Guid Key { get; init; }
         public int Version { get; init; }
 
+
         public bool Equals(ModelKey other)
         {
             if (ReferenceEquals(null, other))

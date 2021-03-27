@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Demo.Api.Domain;
 using Demo.Api.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,45 +21,53 @@ namespace Demo.Api.Data
         {
         }
 
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<LineItem> LineItems { get; set; }
+        public DbSet<Recipe> Recipes { get; set; }
+        public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
+        public DbSet<Ingredient> Ingredients { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Customer>(entity =>
+            modelBuilder.Entity<Recipe>(entity =>
             {
                 ConfigureBaseModel(entity);
-                entity.Property(e => e.Name).IsRequired();
-                entity.HasMany(e => e.Orders)
-                    .WithOne(o => o.Customer)
-                    .HasForeignKey(o => o.CustomerId);
+
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.Description);
+
+                entity.HasMany(e => e.RecipeIngredients)
+                    .WithOne(o => o.Recipe)
+                    .HasForeignKey(o => o.RecipeId);
             });
 
-            modelBuilder.Entity<Order>(entity =>
+            modelBuilder.Entity<RecipeIngredient>(entity =>
             {
                 ConfigureBaseModel(entity);
-                entity.Property(e => e.OrderType).HasConversion<int>().HasColumnName("order_type_id");
-                entity.Property(o => o.CustomerId).IsRequired();
-                entity.HasOne(o => o.Customer)
-                    .WithMany(c => c.Orders)
-                    .HasForeignKey(o => o.CustomerId);
-                entity.HasMany(o => o.LineItems)
-                    .WithOne(l => l.Order)
-                    .HasForeignKey(l => l.OrderId);
+
+                entity.Property(e => e.RecipeId);
+                entity.HasOne(e => e.Recipe)
+                    .WithMany(r => r.RecipeIngredients)
+                    .HasForeignKey(r => r.RecipeId);
+
+                entity.Property(o => o.UnitOfMeasure).IsRequired()
+                    .HasConversion<int>()
+                    .HasColumnName("unit_of_measure_id");
+
+                entity.Property(e => e.IngredientId);
+                entity.HasOne(e => e.Ingredient)
+                    .WithMany()
+                    .HasForeignKey(e => e.IngredientId);
+
+                entity.Property(e => e.Quantity);
+
             });
 
-            modelBuilder.Entity<LineItem>(entity =>
+            modelBuilder.Entity<Ingredient>(entity =>
             {
                 ConfigureBaseModel(entity);
-                entity.HasOne(e => e.Order)
-                    .WithMany(o => o.LineItems)
-                    .HasForeignKey(e => e.OrderId);
-                entity.Property(e => e.Product).IsRequired().HasMaxLength(128);
-                entity.Property(e => e.ItemCount).IsRequired();
-                entity.Property(e => e.UnitPrice).IsRequired();
+
+                entity.Property(e => e.Name).HasMaxLength(256).IsRequired();
             });
         }
 
@@ -165,8 +174,14 @@ namespace Demo.Api.Data
         }
     }
 
+    public record ModelId(Guid Key, int Version)
+    {
+
+    }
+
     public class ModelBase : IModel
     {
+
         public int Id { get; set; }
 
         public Instant CreatedAt { get; set; }
@@ -174,34 +189,46 @@ namespace Demo.Api.Data
         public Instant? DeletedAt { get; set; }
         public Guid Key { get; set; } = Guid.NewGuid();
         public int Version { get; set; } = 1;
-    }
 
-    public class Customer : ModelBase
-    {
-        public string Name { get; set; }
-        public virtual ICollection<Order> Orders { get; set; }
-    }
+        // DDD domain models are considered equal if they have the same id
+        protected bool Equals(ModelBase other)
+        {
+            return Id == other.Id;
+        }
 
-    public enum OrderType
-    {
-        Normal = 1,
-        Employee = 2
-    }
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
 
-    public class Order : ModelBase
-    {
-        public int CustomerId { get; set; }
-        public OrderType OrderType { get; set; }
-        public virtual Customer Customer { get; set; }
-        public virtual ICollection<LineItem> LineItems { get; set; }
-    }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
 
-    public class LineItem : ModelBase
-    {
-        public int OrderId { get; set; }
-        public virtual Order Order { get; set; }
-        public string Product { get; set; }
-        public int ItemCount { get; set; }
-        public decimal UnitPrice { get; set; }
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return Equals((ModelBase) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id;
+        }
+
+        public static bool operator ==(ModelBase left, ModelBase right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ModelBase left, ModelBase right)
+        {
+            return !Equals(left, right);
+        }
     }
 }

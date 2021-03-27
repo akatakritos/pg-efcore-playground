@@ -58,7 +58,8 @@ namespace Demo.Api.IntegrationTests
                 DbAdapter = DbAdapter.Postgres,
                 TablesToIgnore = new[]
                 {
-                    "order_type_lib"
+                    "unit_of_measure_lib",
+                    "migration_history"
                 }
             };
 

@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Demo.Api.Data;
+using Demo.Api.Domain;
 using Faker;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 
 namespace ConsoleApplication1
 {
@@ -10,8 +13,8 @@ namespace ConsoleApplication1
     {
         private static async Task Main(string[] args)
         {
-            // await Seed();
-            // return;
+            await Seed(10_000);
+            return;
 
             // context.Customers.Add(customer);
             // await context.SaveChangesAsync();
@@ -27,36 +30,28 @@ namespace ConsoleApplication1
                         o => o.UseNodaTime())
                     .UseSnakeCaseNamingConvention()
                     .EnableSensitiveDataLogging().Options);
-                var customer = new Customer
-                {
-                    Name = Name.FullName(),
-                    Orders = new List<Order>()
-                };
 
-                var orderCount = RandomNumber.Next(1, 3);
-                for (var j = 0; j < orderCount; j++)
-                {
-                    var order = new Order
-                    {
-                        OrderType = Enum.Random<OrderType>(),
-                        LineItems = new List<LineItem>()
-                    };
-                    customer.Orders.Add(order);
+                var recipe = new Recipe();
+                recipe.Name = Faker.Company.Name();
+                recipe.Description = Faker.Company.BS();
+                recipe.CookTime = Duration.FromMinutes(Faker.RandomNumber.Next(1, 60));
+                recipe.PrepTime = Duration.FromMinutes(Faker.RandomNumber.Next(1, 60));
 
-                    var lineCount = RandomNumber.Next(1, 10);
-                    for (var k = 0; k < lineCount; k++)
-                    {
-                        var line = new LineItem
-                        {
-                            Product = Company.Name(),
-                            ItemCount = RandomNumber.Next(1, 5),
-                            UnitPrice = RandomNumber.Next(100, 100_000) / 100.00M
-                        };
-                        order.LineItems.Add(line);
-                    }
+                var ingredientCount = Faker.RandomNumber.Next(3, 8);
+                for (int j = 0; j < ingredientCount; j++)
+                {
+                    var ingredientName = Faker.Name.FullName();
+                    var existing = await context.Ingredients.FirstOrDefaultAsync(i => i.Name == ingredientName);
+                    var ingredient = existing ?? new Ingredient() { Name = ingredientName };
+
+                    var units = Faker.Enum.Random<UnitOfMeasure>();
+                    var quantity = Faker.RandomNumber.Next(1, 16) / 4.0M;
+                    recipe.AddIngredient(ingredient, units, quantity);
                 }
 
-                context.Customers.Add(customer);
+
+                Console.WriteLine($"Entering recipe {i} of {n}");
+                context.Recipes.Add(recipe);
                 await context.SaveChangesAsync();
             }
         }

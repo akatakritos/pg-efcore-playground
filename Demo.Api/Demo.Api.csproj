@@ -41,9 +41,10 @@
 
     <ItemGroup>
       <None Remove="Data\Migrations\R__SeedOrderType.sql" />
-      <EmbeddedResource Include="Data\Migrations\R__SeedOrderType.sql" />
       <None Remove="Data\Migrations\V2021.03.22.001__InitialSchema.sql" />
       <EmbeddedResource Include="Data\Migrations\V2021.03.22.001__InitialSchema.sql" />
+      <None Remove="Data\Migrations\R__Seed_unit_of_measure_lib.sql" />
+      <EmbeddedResource Include="Data\Migrations\R__Seed_unit_of_measure_lib.sql" />
     </ItemGroup>
 
 </Project>

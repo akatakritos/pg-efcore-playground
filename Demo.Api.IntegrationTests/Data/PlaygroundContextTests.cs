@@ -1,7 +1,12 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Demo.Api.Data;
+using Demo.Api.Domain;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NFluent;
+using NodaTime;
 using Xunit;
 
 namespace Demo.Api.IntegrationTests.Data
@@ -11,22 +16,22 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task ItBumpsTheVersionAndEditTime()
         {
-            var original = new Customer()
+            var original = new Recipe()
             {
-                Name = "Bob"
+                Name = "Chocolate Milk"
             };
 
             await AppFixture.InsertAsync(original);
 
             await AppFixture.ExecuteDbContextAsync(async (db) =>
             {
-                var saved = await db.Customers.FirstOrDefaultAsync(x => x.Key == original.Key);
-                saved.Name = "Sally";
+                var saved = await db.Recipes.FirstOrDefaultAsync(x => x.Key == original.Key);
+                saved.Name = "Milk";
             });
 
-            var updated = await AppFixture.FindAsync<Customer>(original.Key);
+            var updated = await AppFixture.FindAsync<Recipe>(original.Key);
 
-            Check.That(updated.Name).IsEqualTo("Sally");
+            Check.That(updated.Name).IsEqualTo("Milk");
 
             Check.That(updated.Version).IsEqualTo(2);
 
@@ -40,7 +45,7 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task ItTreatsVersionAsConcurrencyToken()
         {
-            var original = new Customer()
+            var original = new Recipe()
             {
                 Name = "Concurrency Check"
             };
@@ -50,13 +55,13 @@ namespace Demo.Api.IntegrationTests.Data
             {
                 await AppFixture.ExecuteDbContextAsync(async (db) =>
                 {
-                    var saved = await db.Customers.FirstOrDefaultAsync(x => x.Key == original.Key);
+                    var saved = await db.Recipes.FirstOrDefaultAsync(x => x.Key == original.Key);
                     saved.Name = "Sally";
 
                     // record is updated by another user while this context is working with the entity
                     // so when it goes to save, the version numbers will no longer match
                     await db.Database.ExecuteSqlInterpolatedAsync(
-                        $"update customers set version = version + 1 where key = {original.Key}");
+                        $"update recipes set version = version + 1 where key = {original.Key}");
                 });
             }).Throws<DbUpdateConcurrencyException>();
         }
@@ -64,19 +69,74 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task ItSoftDeletesRecords()
         {
-            var original = new Customer() { Name = "Soft Delete Check" };
+            var original = new Recipe() { Name = "Soft Delete Check" };
             await AppFixture.InsertAsync(original);
 
             await AppFixture.ExecuteDbContextAsync(async (db) =>
             {
-                var saved = await db.Customers.FindAsync(original.Id);
+                var saved = await db.Recipes.FindAsync(original.Id);
                 Check.WithCustomMessage("saved customer should exist").That(saved).IsNotNull();
 
                 db.Remove(saved);
             });
 
-            var deleted = await AppFixture.FindAsync<Customer>(original.Key);
+            var deleted = await AppFixture.FindAsync<Recipe>(original.Key);
             Check.WithCustomMessage($"Customer {original.Key} should be deleted").That(deleted).IsNull();
+
+        }
+
+        [Fact]
+        public async Task CanSaveASimpleRecipe()
+        {
+            var recipe = new Recipe()
+            {
+                Name = "Chocolate Milk",
+                PrepTime = Duration.FromMinutes(3),
+                CookTime = Duration.Zero
+            };
+
+            var milk = new Ingredient()
+            {
+                Name = "Milk"
+            };
+
+            var chocolateSauce = new Ingredient()
+            {
+                Name = "Chocolate Sauce"
+            };
+
+            recipe.AddIngredient(milk, UnitOfMeasure.Cup, 1M);
+            recipe.AddIngredient(chocolateSauce, UnitOfMeasure.Tablespoon, 2M);
+
+            await AppFixture.InsertAsync(recipe);
+
+            var saved = await AppFixture.ExecuteDbContextAsync(db =>
+                db.Recipes
+                    .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
+                    .Where(r => r.Key == recipe.Key)
+                    .FirstOrDefaultAsync());
+            saved.Name.Should().Be("Chocolate Milk");
+            saved.PrepTime.Should().Be(Duration.FromMinutes(3));
+            saved.CookTime.Should().Be(Duration.Zero);
+            saved.RecipeIngredients.Should().HaveCount(2)
+                .And.SatisfyRespectively(
+                    first =>
+                    {
+                        first.Id.Should().BeGreaterThan(0);
+                        first.Key.Should().NotBe(Guid.Empty);
+                        first.Quantity.Should().Be(1M);
+                        first.UnitOfMeasure.Should().Be(UnitOfMeasure.Cup);
+                        first.Ingredient.Should().Be(milk);
+                    },
+                    second =>
+                    {
+                        second.Id.Should().BeGreaterThan(0);
+                        second.Key.Should().NotBe(Guid.Empty);
+                        second.Quantity.Should().Be(2M);
+                        second.UnitOfMeasure.Should().Be(UnitOfMeasure.Tablespoon);
+                        second.Ingredient.Should().Be(chocolateSauce);
+                    });
 
         }
 

@@ -31,6 +31,7 @@ namespace Demo.Api.Data.Migrations
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => !IsRerunnableMigration(s))
                 .JournalToPostgresqlTable("public", "migration_history")
                 .LogToAutodetectedLog()
+                .LogToConsole()
                 .Build();
 
             var seeder = DeployChanges.To
