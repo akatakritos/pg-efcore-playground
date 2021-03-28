@@ -18,7 +18,7 @@ namespace Demo.Api.Infrastructure
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            return InstantPattern.General.Parse(value.ToString()).Value;
+            return InstantPattern.General.Parse(value.ToString()!).Value;
         }
     }
 

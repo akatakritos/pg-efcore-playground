@@ -44,7 +44,7 @@ namespace ConsoleApplication1
                 {
                     var ingredientName = Name.FullName();
                     var existing = await context.Ingredients.FirstOrDefaultAsync(i => i.Name == ingredientName);
-                    var ingredient = existing ?? new Ingredient { Name = ingredientName };
+                    var ingredient = existing ?? new Ingredient(ingredientName);
 
                     var units = Enum.Random<UnitOfMeasure>();
                     var quantity = RandomNumber.Next(1, 16) / 4.0M;

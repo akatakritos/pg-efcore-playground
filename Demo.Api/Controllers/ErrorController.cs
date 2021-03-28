@@ -51,7 +51,7 @@ namespace Demo.Api.Controllers
         }
 
         public string Message { get; }
-        public string StackTrace { get; set; }
+        public string? StackTrace { get; set; }
     }
 
     public class ValidationErrorResponse : ErrorResponse
@@ -67,7 +67,7 @@ namespace Demo.Api.Controllers
 
     public class ValidationFailure
     {
-        public string PropertyName { get; set; }
-        public string ErrorMessage { get; set; }
+        public string PropertyName { get; set; } = "";
+        public string ErrorMessage { get; set; } = "";
     }
 }

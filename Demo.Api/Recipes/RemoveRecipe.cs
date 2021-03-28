@@ -8,7 +8,7 @@ namespace Demo.Api.Recipes
 {
     public class RemoveRecipeRequest : IRequest<Unit>
     {
-        public ModelUpdateIdentifier RecipeKey { get; set; }
+        public ModelUpdateIdentifier RecipeKey { get; set; } = null!;
     }
 
     public class RemoveRecipeRequestHandler : IRequestHandler<RemoveRecipeRequest, Unit>

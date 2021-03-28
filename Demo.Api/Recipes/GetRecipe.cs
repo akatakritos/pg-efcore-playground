@@ -18,28 +18,28 @@ namespace Demo.Api.Recipes
     {
         public Instant CreatedAt { get; set; }
         public Instant UpdatedAt { get; set; }
-        public ModelUpdateIdentifier ModelKey { get; set; }
+        public ModelUpdateIdentifier ModelKey { get; set; } = null!;
     }
 
     public class RecipeResponse : ModelResponseBase
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; } = null!;
+        public string? Description { get; set; }
         public Duration CookTime { get; set; }
         public Duration PrepTime { get; set; }
-        public IReadOnlyList<RecipeIngredientResponse> RecipeIngredients { get; set; }
+        public IReadOnlyList<RecipeIngredientResponse> RecipeIngredients { get; set; } = null!;
     }
 
     public class RecipeIngredientResponse : ModelResponseBase
     {
-        public UnitOfMeasure UnitOfMeasure { get; set; }
-        public IngredientResponse Ingredient { get; set; }
+        public UnitOfMeasure UnitOfMeasure { get; set; } = null!;
+        public IngredientResponse Ingredient { get; set; } = null!;
         public decimal Quantity { get; set; }
     }
 
     public class IngredientResponse : ModelResponseBase
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public class GetRecipeRequest : IRequest<RecipeResponse>

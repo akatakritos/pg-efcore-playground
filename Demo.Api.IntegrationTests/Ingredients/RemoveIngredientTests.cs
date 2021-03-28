@@ -17,9 +17,9 @@ namespace Demo.Api.IntegrationTests.Ingredients
         {
             var original = new Recipe(name: nameof(ItRemovesTheIngredient));
 
-            var toDelete = original.AddIngredient(new Ingredient { Name = Guid.NewGuid().ToString() },
+            var toDelete = original.AddIngredient(new Ingredient(Guid.NewGuid().ToString()),
                 UnitOfMeasure.Cup, 2M);
-            original.AddIngredient(new Ingredient { Name = Guid.NewGuid().ToString() }, UnitOfMeasure.Pint, 5M);
+            original.AddIngredient(new Ingredient(Guid.NewGuid().ToString()), UnitOfMeasure.Pint, 5M);
 
             await AppFixture.InsertAsync(original);
 

@@ -18,6 +18,7 @@ namespace Demo.Api.Domain
         // ReSharper disable once MemberCanBePrivate.Global
         protected Recipe()
         {
+            _name = null!;
         }
 
         public Recipe(string name) : this()
@@ -31,7 +32,7 @@ namespace Demo.Api.Domain
             set => _name = Verify.Param(value, nameof(Name)).IsNotNullOrEmpty().Value;
         }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public Duration CookTime { get; set; } = Duration.Zero;
 
@@ -50,12 +51,7 @@ namespace Demo.Api.Domain
                 throw new InvalidOperationException($"Recipe [{Key}] already contains ingredient [{ingredient.Key}]");
             }
 
-            var recipeIngredient = new RecipeIngredient
-            {
-                Ingredient = ingredient,
-                UnitOfMeasure = unitOfMeasure,
-                Quantity = quantity
-            };
+            var recipeIngredient = new RecipeIngredient(this, ingredient, unitOfMeasure, quantity);
 
             _recipeIngredients.Add(recipeIngredient);
             return recipeIngredient;

@@ -13,15 +13,15 @@ namespace Demo.Api.Data
 {
     public class PlaygroundContext : DbContext
     {
-        private IDbContextTransaction _currentTransaction;
+        private IDbContextTransaction? _currentTransaction;
 
         public PlaygroundContext(DbContextOptions<PlaygroundContext> options) : base(options)
         {
         }
 
-        public DbSet<Recipe> Recipes { get; set; }
-        public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
-        public DbSet<Ingredient> Ingredients { get; set; }
+        public DbSet<Recipe> Recipes => Set<Recipe>();
+        public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
+        public DbSet<Ingredient> Ingredients => Set<Ingredient>();
 
         public async Task<Recipe> GetRecipeForUpdate(ModelUpdateIdentifier identifier,
                                                      CancellationToken cancellationToken = default)
@@ -55,17 +55,17 @@ namespace Demo.Api.Data
 
                 entity.HasMany(e => e.RecipeIngredients)
                     .WithOne(o => o.Recipe)
-                    .HasForeignKey(o => o.RecipeId);
+                    .HasForeignKey("RecipeId");
             });
 
             modelBuilder.Entity<RecipeIngredient>(entity =>
             {
                 ConfigureBaseModel(entity);
 
-                entity.Property(e => e.RecipeId);
+                entity.Property<long>("RecipeId");
                 entity.HasOne(e => e.Recipe)
                     .WithMany(r => r.RecipeIngredients)
-                    .HasForeignKey(r => r.RecipeId);
+                    .HasForeignKey("RecipeId");
 
                 entity.Property(o => o.UnitOfMeasure).IsRequired()
                     .HasConversion(
@@ -73,12 +73,10 @@ namespace Demo.Api.Data
                         id => UnitOfMeasure.FromValue(id))
                     .HasColumnName("unit_of_measure_id");
 
-                entity.Property(e => e.IngredientId);
+                entity.Property<long>("IngredientId");
                 entity.HasOne(e => e.Ingredient)
                     .WithMany()
-                    .HasForeignKey(e => e.IngredientId);
-
-                entity.Property(e => e.Quantity);
+                    .HasForeignKey("IngredientId");
             });
 
             modelBuilder.Entity<Ingredient>(entity =>

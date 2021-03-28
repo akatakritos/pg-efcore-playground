@@ -33,18 +33,14 @@ namespace Demo.Api.ReferenceData
             using var connection = await _db.GetOpenConnection(cancellationToken);
             var results =
                 await connection.QueryAsync<QueryResult>(@"select ""id"", ""name"" from ""unit_of_measure_lib""");
-            return results.Select(r => new ReferenceData
-            {
-                Code = ((UnitOfMeasure) r.Id).ToString(),
-                Description = r.Name
-            }).ToList();
+            return results.Select(r => new ReferenceData(UnitOfMeasure.FromValue(r.Id).Name, r.Name)).ToList();
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class QueryResult
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
     }
 }

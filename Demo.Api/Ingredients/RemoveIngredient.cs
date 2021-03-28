@@ -12,8 +12,8 @@ namespace Demo.Api.Ingredients
 {
     public class RemoveIngredientRequest : IRequest
     {
-        public ModelUpdateIdentifier RecipeModelKey { get; set; }
-        public ModelUpdateIdentifier RecipeIngredientModelKey { get; set; }
+        public ModelUpdateIdentifier RecipeModelKey { get; init; } = null!;
+        public ModelUpdateIdentifier RecipeIngredientModelKey { get; init; } = null!;
     }
 
     public class RemoveIngredientRequestHandler : IRequestHandler<RemoveIngredientRequest>

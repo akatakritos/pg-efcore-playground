@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -19,6 +20,8 @@ namespace Demo.Api.Infrastructure
         {
             _db = db;
             var assembly = Assembly.GetAssembly(typeof(DbUpMigrator));
+            Debug.Assert(assembly != null);
+
             _migrationScripts = assembly.GetManifestResourceNames()
                 .Where(s => !DbUpMigrator.IsReRunnableMigration(s))
                 .ToList();
@@ -53,7 +56,7 @@ namespace Demo.Api.Infrastructure
 
         private class MigrationHistory
         {
-            public string ScriptName { get; set; }
+            public string ScriptName { get; init; } = null!;
         }
     }
 }

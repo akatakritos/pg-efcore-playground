@@ -14,14 +14,17 @@ namespace Demo.Api.Infrastructure
     {
         private static readonly Dictionary<string, object> _cache = new();
 
-        public static T Get<T>(string key)
+        public static T Get<T>(string key) where T: class
         {
             return (T) _cache[key];
         }
 
         public static void Set<T>(string key, T value)
         {
-            _cache[key] = value;
+            if (value != null)
+            {
+                _cache[key] = value;
+            }
         }
 
         public static bool HasKey(string key)
@@ -55,6 +58,7 @@ namespace Demo.Api.Infrastructure
     /// <typeparam name="TResponse"></typeparam>
     public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
+        where TResponse: class
     {
         // Log.ForContext<Type> gives a gnarly name due to generics
         // ReSharper disable once StaticMemberInGenericType

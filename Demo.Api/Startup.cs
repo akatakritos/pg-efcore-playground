@@ -24,7 +24,6 @@ namespace Demo.Api
 
         public IConfiguration Configuration { get; }
         public IHostEnvironment Environment { get; }
-        public ILifetimeScope AutofacContainer { get; private set; }
 
         // Default registration stuff
         public void ConfigureServices(IServiceCollection services)
@@ -91,7 +90,7 @@ namespace Demo.Api
 
             // If, for some reason, you need a reference to the built container, you
             // can use the convenience extension method GetAutofacRoot.
-            AutofacContainer = app.ApplicationServices.GetAutofacRoot();
+            // AutofacContainer = app.ApplicationServices.GetAutofacRoot();
 
             MigrateDatabase();
         }

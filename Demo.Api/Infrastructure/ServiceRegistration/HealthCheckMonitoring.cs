@@ -34,16 +34,16 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
 
     public class IndividualHealthCheckResponse
     {
-        public string Status { get; set; }
-        public string Component { get; set; }
-        public string Description { get; set; }
-        public IReadOnlyDictionary<string, object> Data { get; set; }
+        public string Status { get; set; } = null!;
+        public string Component { get; set; } = null!;
+        public string? Description { get; set; }
+        public IReadOnlyDictionary<string, object>? Data { get; set; }
     }
 
     public class HealthCheckResponse
     {
-        public string Status { get; set; }
-        public IEnumerable<IndividualHealthCheckResponse> HealthChecks { get; set; }
+        public string Status { get; set; } = null!;
+        public IEnumerable<IndividualHealthCheckResponse> HealthChecks { get; set; } = null!;
         public double HealthCheckDuration { get; set; }
 
         public static HealthCheckResponse FromHealthReport(HealthReport report)

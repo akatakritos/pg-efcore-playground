@@ -12,8 +12,8 @@ namespace Demo.Api.Recipes
 {
     public class CreateRecipeCommand : IRequest<ModelUpdateIdentifier>
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
         public Duration CookTime { get; set; }
         public Duration PrepTime { get; set; }
     }

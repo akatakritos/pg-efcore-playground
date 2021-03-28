@@ -37,7 +37,7 @@ namespace Ardalis.SmartEnum.SystemTextJson
             switch (reader.TokenType)
             {
                 case JsonTokenType.String:
-                    return GetFromName(reader.GetString());
+                    return GetFromName(reader.GetString()!);
 
                 default:
                     throw new JsonException($"Unexpected token {reader.TokenType} when parsing a smart enum.");

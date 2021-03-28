@@ -6,7 +6,8 @@ namespace Demo.Api.Data
 {
     public class ModelBase : IModel
     {
-        public int Id { get; }
+        // todo -- do we even need this? Could refer to it by string name in ef setup
+        public long Id { get; } = 0; // set by database
 
         public Instant CreatedAt { get; private set; }
 
@@ -50,7 +51,7 @@ namespace Demo.Api.Data
             return Key.Equals(other.Key);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
             {
@@ -70,12 +71,12 @@ namespace Demo.Api.Data
             return Key.GetHashCode();
         }
 
-        public static bool operator ==(ModelBase left, ModelBase right)
+        public static bool operator ==(ModelBase? left, ModelBase? right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(ModelBase left, ModelBase right)
+        public static bool operator !=(ModelBase? left, ModelBase? right)
         {
             return !Equals(left, right);
         }

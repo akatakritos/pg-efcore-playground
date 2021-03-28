@@ -22,7 +22,7 @@ namespace Demo.Api.IntegrationTests.Recipes
                     PrepTime = Duration.FromMinutes(15)
                 };
 
-                var ingredient = new Ingredient { Name = "Sugar" };
+                var ingredient = new Ingredient("Sugar");
                 recipe.AddIngredient(ingredient, UnitOfMeasure.Cup, 1M);
                 db.Recipes.Add(recipe);
                 await Task.CompletedTask;

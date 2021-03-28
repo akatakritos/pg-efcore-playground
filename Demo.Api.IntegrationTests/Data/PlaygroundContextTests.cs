@@ -84,15 +84,8 @@ namespace Demo.Api.IntegrationTests.Data
                 CookTime = Duration.Zero
             };
 
-            var milk = new Ingredient
-            {
-                Name = "Milk"
-            };
-
-            var chocolateSauce = new Ingredient
-            {
-                Name = "Chocolate Sauce"
-            };
+            var milk = new Ingredient("Milk");
+            var chocolateSauce = new Ingredient("Chocolate Sauce");
 
             recipe.AddIngredient(milk, UnitOfMeasure.Cup, 1M);
             recipe.AddIngredient(chocolateSauce, UnitOfMeasure.Tablespoon, 2M);

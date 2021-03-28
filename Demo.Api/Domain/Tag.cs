@@ -4,7 +4,12 @@ namespace Demo.Api.Domain
 {
     public class Tag : ModelBase
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; }
+        public string? Description { get; set; }
+
+        public Tag(string name)
+        {
+            Name = name;
+        }
     }
 }

@@ -74,6 +74,6 @@ namespace Demo.Api.Data.Migrations
             ErrorScript = result.ErrorScript;
         }
 
-        public SqlScript ErrorScript { get; }
+        public SqlScript? ErrorScript { get; }
     }
 }

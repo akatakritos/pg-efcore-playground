@@ -14,11 +14,11 @@ namespace Demo.Api.Ingredients
     public class AddIngredientRequest : IRequest<ModelUpdateIdentifier>
     {
         // comes from url, not meant to be POSTed, so internal
-        internal ModelUpdateIdentifier RecipeKey { get; set; }
+        internal ModelUpdateIdentifier RecipeKey { get; set; } = null!;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public decimal Quantity { get; set; }
-        public UnitOfMeasure UnitOfMeasure { get; set; }
+        public UnitOfMeasure UnitOfMeasure { get; set; } = null!;
     }
 
     public class AddIngredientRequestValidator : AbstractValidator<AddIngredientRequest>
@@ -28,6 +28,8 @@ namespace Demo.Api.Ingredients
             RuleFor(x => x.RecipeKey).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(256);
             RuleFor(x => x.Quantity).GreaterThan(0M);
+            RuleFor(x => x.UnitOfMeasure).NotNull();
+            RuleFor(x => x.RecipeKey).NotNull();
         }
     }
 

@@ -4,6 +4,7 @@
         <TargetFramework>net5.0</TargetFramework>
         <NoWarn>$(NoWarn);1591</NoWarn>
         <DocumentationFile>bin\Debug\Demo.Api.xml</DocumentationFile>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
 
