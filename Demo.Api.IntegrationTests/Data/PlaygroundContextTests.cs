@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Demo.Api.Domain;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using NFluent;
 using NodaTime;
 using Xunit;
 
@@ -30,15 +29,13 @@ namespace Demo.Api.IntegrationTests.Data
 
             var updated = await AppFixture.FindAsync<Recipe>(original.Key);
 
-            Check.That(updated.Name).IsEqualTo("Milk");
+            updated.Name.Should().Be("Milk");
+            updated.Version.Should().Be(2);
 
-            Check.That(updated.Version).IsEqualTo(2);
-
-            Check.WithCustomMessage("UpdatedAt should be updated")
-                .That(updated.UpdatedAt.ToUnixTimeTicks())
-                .IsStrictlyGreaterThan(original.UpdatedAt.ToUnixTimeTicks());
-            Check.WithCustomMessage("CreatedAt should not change")
-                .That(updated.CreatedAt).IsEqualTo(updated.CreatedAt);
+            updated.UpdatedAt.ToUnixTimeMilliseconds().Should()
+                .BeGreaterThan(original.UpdatedAt.ToUnixTimeMilliseconds(),
+                    because: "updated timestamps should be bumped on change");
+            updated.CreatedAt.Should().Be(original.CreatedAt, because: "created timestamps are never changed");
         }
 
         [Fact]
@@ -50,7 +47,7 @@ namespace Demo.Api.IntegrationTests.Data
             };
             await AppFixture.InsertAsync(original);
 
-            Check.ThatAsyncCode(async () =>
+            FluentActions.Invoking(async () =>
             {
                 await AppFixture.ExecuteDbContextAsync(async db =>
                 {
@@ -62,7 +59,7 @@ namespace Demo.Api.IntegrationTests.Data
                     await db.Database.ExecuteSqlInterpolatedAsync(
                         $"update recipes set version = version + 1 where key = {original.Key}");
                 });
-            }).Throws<DbUpdateConcurrencyException>();
+            }).Should().Throw<DbUpdateConcurrencyException>();
         }
 
         [Fact]
