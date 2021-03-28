@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Demo.Api.Domain;
 using Demo.Api.Ingredients;
+using Demo.Api.Shared;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -24,7 +25,7 @@ namespace Demo.Api.IntegrationTests.Ingredients
 
             var result = await AppFixture.SendAsync(new AddIngredientRequest
             {
-                RecipeKey = recipe.Key,
+                RecipeKey = new ModelUpdateIdentifier(recipe),
                 Name = ingredientName,
                 Quantity = 42M,
                 UnitOfMeasure = UnitOfMeasure.Pint

@@ -17,13 +17,13 @@ namespace Demo.Api.Ingredients
             _mediator = mediator;
         }
 
-        [HttpPost("{recipeKey}/ingredients")]
+        [HttpPost("{recipeKey};{recipeVersion}/ingredients")]
         [ProducesResponseType(typeof(ModelUpdateIdentifier), 200)]
         [ProducesResponseType(typeof(ValidationErrorResponse), 400)]
         [ProducesErrorResponseType(typeof(ErrorResponse))]
-        public async Task<IActionResult> AddIngredient(Guid recipeKey, [FromBody] AddIngredientRequest request)
+        public async Task<IActionResult> AddIngredient(Guid recipeKey, int recipeVersion, [FromBody] AddIngredientRequest request)
         {
-            request.RecipeKey = recipeKey;
+            request.RecipeKey = new ModelUpdateIdentifier(recipeKey, recipeVersion);
             var result = await _mediator.Send(request);
             return Ok(result);
         }

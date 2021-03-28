@@ -16,7 +16,8 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
         {
             services.AddHealthChecks()
                 .AddDbContextCheck<PlaygroundContext>()
-                .AddCheck<CustomHealthCheck>("Custom Check");
+                .AddCheck<CustomHealthCheck>("Custom Check")
+                .AddCheck<MigrationHealthCheck>(name: "Migration Status");
         }
 
         public static void MapAppHealthChecks(this IEndpointRouteBuilder endpoints)
@@ -36,6 +37,7 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
         public string Status { get; set; }
         public string Component { get; set; }
         public string Description { get; set; }
+        public IReadOnlyDictionary<string, object> Data { get; set; }
     }
 
     public class HealthCheckResponse
@@ -53,7 +55,8 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
                 {
                     Component = x.Key,
                     Status = x.Value.Status.ToString(),
-                    Description = x.Value.Description
+                    Description = x.Value.Description,
+                    Data = x.Value.Data
                 }),
                 HealthCheckDuration = report.TotalDuration.TotalMilliseconds
             };

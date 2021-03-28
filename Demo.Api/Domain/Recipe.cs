@@ -43,6 +43,8 @@ namespace Demo.Api.Domain
 
         public void RemoveIngredient(ModelUpdateIdentifier identifier)
         {
+            Verify.Param(identifier, nameof(identifier)).IsNotNull();
+
             var recipeIngredient = _recipeIngredients.FirstOrDefault(identifier.Matches);
             if (recipeIngredient == null)
             {
@@ -52,6 +54,16 @@ namespace Demo.Api.Domain
             recipeIngredient.SoftDelete();
             _recipeIngredients.Remove(recipeIngredient);
             MarkUpdated();
+        }
+
+        public override void SoftDelete()
+        {
+            base.SoftDelete();
+            foreach (var recipe in _recipeIngredients)
+            {
+                recipe.SoftDelete();
+            }
+            _recipeIngredients.Clear();
         }
     }
 }

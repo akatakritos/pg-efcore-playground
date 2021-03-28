@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using DbUp;
 using DbUp.Engine;
@@ -17,18 +18,18 @@ namespace Demo.Api.Data.Migrations
         {
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
+        public static bool IsReRunnableMigration(string filename)
+        {
+            return filename.StartsWith("Demo.Api.Data.Migrations.R");
+        }
 
         public void Migrate()
         {
-            bool IsRerunnableMigration(string filename)
-            {
-                return filename.StartsWith("Demo.Api.Data.Migrations.R");
-            }
 
             _log.Information("Migrating database");
             var upgrader = DeployChanges
                 .To.PostgresqlDatabase(_connectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => !IsRerunnableMigration(s))
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => !IsReRunnableMigration(s))
                 .JournalToPostgresqlTable("public", "migration_history")
                 .LogToAutodetectedLog()
                 .LogToConsole()
@@ -36,18 +37,26 @@ namespace Demo.Api.Data.Migrations
 
             var seeder = DeployChanges.To
                 .PostgresqlDatabase(_connectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsRerunnableMigration)
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsReRunnableMigration)
                 .JournalTo(new NullJournal())
                 .LogToAutodetectedLog()
                 .Build();
 
+            var sw = Stopwatch.StartNew();
             var upgradeResult = upgrader.PerformUpgrade();
+            sw.Stop();
+            _log.Information("Database schema migrated in {Elapsed}ms", sw.ElapsedMilliseconds);
+
             if (!upgradeResult.Successful)
             {
                 throw new DbUpMigrationException("Failed to migrate database", upgradeResult);
             }
 
+            sw.Restart();
             var seedResult = seeder.PerformUpgrade();
+            sw.Stop();
+            _log.Information("Database seeded in {Elapsed}ms", sw.ElapsedMilliseconds);
+
             if (!seedResult.Successful)
             {
                 throw new DbUpMigrationException("Failed to seed database", seedResult);

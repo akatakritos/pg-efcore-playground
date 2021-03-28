@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Running;
 using Demo.Api.Data;
 using Demo.Api.Domain;
 using Faker;
@@ -13,7 +14,9 @@ namespace ConsoleApplication1
     {
         private static async Task Main(string[] args)
         {
-            await Seed(10_000);
+            BenchmarkRunner.Run<SplitQueryBenchmark>();
+
+            // await Seed(10_000);
             return;
 
             // context.Customers.Add(customer);

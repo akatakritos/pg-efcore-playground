@@ -1,8 +1,10 @@
+using System;
 using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Demo.Api.Domain;
+using Demo.Api.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -20,6 +22,24 @@ namespace Demo.Api.Data
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
+
+        public async  Task<Recipe> GetRecipeForUpdate(ModelUpdateIdentifier identifier, CancellationToken cancellationToken = default)
+        {
+            return await Recipes
+                .Include(r => r.RecipeIngredients)
+                .ThenInclude(ri => ri.Ingredient)
+                .Where(r => r.Key == identifier.Key && r.Version == identifier.Version)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<Recipe> GetRecipe(Guid key, CancellationToken cancellationToken = default)
+        {
+            return await Recipes
+                .Include(r => r.RecipeIngredients)
+                .ThenInclude(ri => ri.Ingredient)
+                .Where(r => r.Key == key)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

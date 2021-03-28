@@ -15,7 +15,7 @@ namespace Demo.Api.Ingredients
     public class AddIngredientRequest : IRequest<ModelUpdateIdentifier>
     {
         // comes from url, not meant to be POSTed, so internal
-        internal Guid RecipeKey { get; set; }
+        internal ModelUpdateIdentifier RecipeKey { get; set; }
 
         public string Name { get; set; }
         public decimal Quantity { get; set; }
@@ -47,11 +47,7 @@ namespace Demo.Api.Ingredients
         public async Task<ModelUpdateIdentifier> Handle(AddIngredientRequest request,
                                                         CancellationToken cancellationToken)
         {
-            var recipe = await _context.Recipes
-                .Include(x => x.RecipeIngredients)
-                .ThenInclude(x => x.Ingredient)
-                .Where(x => x.Key == request.RecipeKey)
-                .FirstOrDefaultAsync(cancellationToken);
+            var recipe = await _context.GetRecipeForUpdate(request.RecipeKey);
 
             if (recipe == null)
             {
