@@ -26,6 +26,7 @@ namespace Demo.Api.IntegrationTests.Recipes
                 var ingredient = new Ingredient() { Name = "Sugar" };
                 recipe.AddIngredient(ingredient, UnitOfMeasure.Cup, 1M);
                 db.Recipes.Add(recipe);
+                await Task.CompletedTask;
                 return recipe;
             });
 

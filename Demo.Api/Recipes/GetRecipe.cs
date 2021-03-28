@@ -7,6 +7,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Demo.Api.Data;
 using Demo.Api.Domain;
+using Demo.Api.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
@@ -17,8 +18,7 @@ namespace Demo.Api.Recipes
     {
         public Instant CreatedAt { get; set; }
         public Instant UpdatedAt { get; set; }
-        public Guid Key { get; set; }
-        public int Version { get; set; }
+        public ModelUpdateIdentifier ModelKey { get; set; }
     }
     public class RecipeResponse: ModelResponseBase
     {

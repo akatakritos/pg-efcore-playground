@@ -11,7 +11,7 @@ using NodaTime;
 
 namespace Demo.Api.Recipes
 {
-    public class CreateRecipeCommand: IRequest<ModelKey>
+    public class CreateRecipeCommand: IRequest<ModelUpdateIdentifier>
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -30,7 +30,7 @@ namespace Demo.Api.Recipes
         }
     }
 
-    public class CreateRecipeCommandHandler : IRequestHandler<CreateRecipeCommand, ModelKey>
+    public class CreateRecipeCommandHandler : IRequestHandler<CreateRecipeCommand, ModelUpdateIdentifier>
     {
         private readonly IMapper _mapper;
         private readonly PlaygroundContext _context;
@@ -41,12 +41,12 @@ namespace Demo.Api.Recipes
             _context = context;
         }
 
-        public async Task<ModelKey> Handle(CreateRecipeCommand request, CancellationToken cancellationToken)
+        public async Task<ModelUpdateIdentifier> Handle(CreateRecipeCommand request, CancellationToken cancellationToken)
         {
             var recipe = _mapper.Map<Recipe>(request);
             _context.Recipes.Add(recipe);
             await _context.SaveChangesAsync(cancellationToken);
-            return new ModelKey { Key = recipe.Key, Version = recipe.Version };
+            return new ModelUpdateIdentifier(recipe);
         }
     }
 }

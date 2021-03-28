@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Demo.Api.Data;
 using Demo.Api.Domain;
 using Demo.Api.Ingredients;
 using FluentAssertions;
@@ -14,19 +15,17 @@ namespace Demo.Api.IntegrationTests.Ingredients
         [Fact]
         public async Task ItAddsAnIngredient()
         {
-            Guid key = Guid.NewGuid();
             var ingredientName = Guid.NewGuid().ToString();
 
             var recipe = new Recipe()
             {
-                Key = key,
                 Name = nameof(ItAddsAnIngredient)
             };
             await AppFixture.InsertAsync(recipe);
 
             var result = await AppFixture.SendAsync(new AddIngredientRequest()
             {
-                RecipeKey = key,
+                RecipeKey = recipe.Key,
                 Name = ingredientName,
                 Quantity = 42M,
                 UnitOfMeasure = UnitOfMeasure.Pint
@@ -39,7 +38,7 @@ namespace Demo.Api.IntegrationTests.Ingredients
                 .FirstOrDefaultAsync());
 
             saved.Ingredient.Name.Should().Be(ingredientName);
-            saved.Recipe.Key.Should().Be(key);
+            saved.Recipe.Key.Should().Be(recipe.Key);
             saved.UnitOfMeasure.Should().Be(UnitOfMeasure.Pint);
             saved.Quantity.Should().Be(42M);
         }

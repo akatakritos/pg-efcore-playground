@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Demo.Api.Ingredients
 {
-    public class AddIngredientRequest : IRequest<ModelKey>
+    public class AddIngredientRequest : IRequest<ModelUpdateIdentifier>
     {
         // comes from url, not meant to be POSTed, so internal
         internal Guid RecipeKey { get; set; }
@@ -33,7 +33,7 @@ namespace Demo.Api.Ingredients
         }
     }
 
-    public class AddIngredientHandler : IRequestHandler<AddIngredientRequest, ModelKey>
+    public class AddIngredientHandler : IRequestHandler<AddIngredientRequest, ModelUpdateIdentifier>
     {
         private readonly IMapper _mapper;
         private readonly PlaygroundContext _context;
@@ -44,7 +44,7 @@ namespace Demo.Api.Ingredients
             _context = context;
         }
 
-        public async Task<ModelKey> Handle(AddIngredientRequest request, CancellationToken cancellationToken)
+        public async Task<ModelUpdateIdentifier> Handle(AddIngredientRequest request, CancellationToken cancellationToken)
         {
             var recipe = await _context.Recipes
                 .Include(x => x.RecipeIngredients)
@@ -58,13 +58,11 @@ namespace Demo.Api.Ingredients
                 .Where(x => x.Name == request.Name)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-            var ingredient = existingIngredient ?? new Ingredient { Name = request.Name };
-            recipe.AddIngredient(ingredient, request.UnitOfMeasure, request.Quantity);
+            var ingredient = existingIngredient ?? _mapper.Map<Ingredient>(request);
+            var recipeIngredient = recipe.AddIngredient(ingredient, request.UnitOfMeasure, request.Quantity);
 
             await _context.SaveChangesAsync(cancellationToken);
-
-            var recipeIngredient = recipe.RecipeIngredients[^1];
-            return new ModelKey() { Key = recipeIngredient.Key, Version = recipeIngredient.Version };
+            return new ModelUpdateIdentifier(recipeIngredient.Key, recipeIngredient.Version);
         }
     }
 

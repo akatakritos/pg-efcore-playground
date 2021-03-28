@@ -75,13 +75,14 @@ namespace Demo.Api.IntegrationTests.Data
             await AppFixture.ExecuteDbContextAsync(async (db) =>
             {
                 var saved = await db.Recipes.FindAsync(original.Id);
-                Check.WithCustomMessage("saved customer should exist").That(saved).IsNotNull();
+                saved.Should().NotBeNull(because: "we just saved it");
 
-                db.Remove(saved);
+                saved.SoftDelete();
+                // db.Remove(saved);
             });
 
             var deleted = await AppFixture.FindAsync<Recipe>(original.Key);
-            Check.WithCustomMessage($"Customer {original.Key} should be deleted").That(deleted).IsNull();
+            deleted.Should().BeNull(because: "Recipe {0} was soft-deleted", original.Key);
 
         }
 

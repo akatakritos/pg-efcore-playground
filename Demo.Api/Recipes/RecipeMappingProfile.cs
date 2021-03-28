@@ -11,10 +11,12 @@ namespace Demo.Api.Recipes
             CreateMap<CreateRecipeCommand, Domain.Recipe>()
                 .IgnoreUneditableModelFields()
                 .ForMember(d => d.RecipeIngredients, x => x.Ignore());
-
-            CreateMap<Recipe, RecipeResponse>();
-            CreateMap<RecipeIngredient, RecipeIngredientResponse>();
-            CreateMap<Ingredient, IngredientResponse>();
+            CreateMap<Recipe, RecipeResponse>()
+                .IncludeModelId();
+            CreateMap<RecipeIngredient, RecipeIngredientResponse>()
+                .IncludeModelId();
+            CreateMap<Ingredient, IngredientResponse>()
+                .IncludeModelId();
         }
     }
 }

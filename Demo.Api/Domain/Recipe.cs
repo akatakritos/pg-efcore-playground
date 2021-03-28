@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Demo.Api.Data;
+using Demo.Api.Shared;
 using NodaTime;
 
 namespace Demo.Api.Domain
@@ -10,15 +11,23 @@ namespace Demo.Api.Domain
     public class Recipe: ModelBase
     {
         public string Name { get; set; }
+
         public string Description { get; set; }
+
         public Duration CookTime { get; set; }
+
         public Duration PrepTime { get; set; }
-        private List<RecipeIngredient> _recipeIngredients = new List<RecipeIngredient>();
+
+        private List<RecipeIngredient> _recipeIngredients = new();
+
         public virtual IReadOnlyList<RecipeIngredient> RecipeIngredients => _recipeIngredients;
 
-        public void AddIngredient(Ingredient ing, UnitOfMeasure uom, decimal quantity)
+        public RecipeIngredient AddIngredient(Ingredient ing, UnitOfMeasure uom, decimal quantity)
         {
-            if (RecipeIngredients.Any(ri => ing.Id > 0 && ri.Ingredient == ri))
+            Verify.IsNotNull(ing, nameof(ing));
+            Verify.IsGreaterThan(quantity, 0M, nameof(quantity));
+
+            if (RecipeIngredients.Any(ri => ri.Ingredient == ri))
             {
                 throw new InvalidOperationException($"Recipe [{Key}] already contains ingredient [{ing.Key}]");
             }
@@ -30,9 +39,19 @@ namespace Demo.Api.Domain
                 Quantity = quantity
             };
 
-            Debug.Assert((int) recipeIngredient.UnitOfMeasure != 0);
-
             _recipeIngredients.Add(recipeIngredient);
+            return recipeIngredient;
+        }
+
+        public void RemoveIngredient(ModelUpdateIdentifier identifier)
+        {
+            var recipeIngredient = _recipeIngredients.FirstOrDefault(identifier.Matches);
+            if (recipeIngredient == null)
+                throw new RecordNotFoundException(nameof(RecipeIngredient), identifier);
+
+            recipeIngredient.SoftDelete();
+             _recipeIngredients.Remove(recipeIngredient);
+             MarkUpdated();
         }
     }
 

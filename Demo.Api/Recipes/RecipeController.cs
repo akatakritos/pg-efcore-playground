@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Demo.Api.Controllers;
+using Demo.Api.Data;
 using Demo.Api.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ namespace Demo.Api.Recipes
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(ModelKey), 200)]
+        [ProducesResponseType(typeof(ModelUpdateIdentifier), 200)]
         [ProducesResponseType(typeof(ValidationErrorResponse), 400)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<IActionResult> Create([FromBody] CreateRecipeCommand cmd)

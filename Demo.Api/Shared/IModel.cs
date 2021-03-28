@@ -1,15 +1,22 @@
 using System;
+using AutoMapper;
+using Demo.Api.Data;
 
 namespace Demo.Api.Shared
 {
     public interface IModel
     {
-        public Guid Key { get; set; }
-        public int Version { get; set; }
+        public Guid Key { get; }
+        public int Version { get; }
     }
 
-    public interface IModelKeyed
+    public record ModelUpdateIdentifier(Guid Key, int Version)
     {
-        public ModelKey ModelKey { get; set; }
+        public bool Matches(IModel model) => model.Key == Key && model.Version == Version;
+
+        public ModelUpdateIdentifier(IModel from): this(from.Key, from.Version)
+        {
+        }
     }
+
 }
