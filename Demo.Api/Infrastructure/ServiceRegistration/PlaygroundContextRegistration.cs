@@ -1,6 +1,4 @@
-using System;
 using Demo.Api.Data;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +9,8 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
 {
     public static class PlaygroundContextRegistration
     {
-        public static void AddPlaygroundContext(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+        public static void AddPlaygroundContext(this IServiceCollection services, IConfiguration configuration,
+                                                IHostEnvironment environment)
         {
             services.AddDbContext<PlaygroundContext>(options =>
             {
@@ -26,6 +25,5 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
                 }
             });
         }
-
     }
 }

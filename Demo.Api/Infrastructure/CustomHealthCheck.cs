@@ -8,7 +8,7 @@ namespace Demo.Api.Infrastructure
     public class CustomHealthCheck : IHealthCheck
     {
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
-            CancellationToken cancellationToken = new())
+                                                              CancellationToken cancellationToken = new())
         {
             await Task.Delay(100);
             return HealthCheckResult.Healthy();

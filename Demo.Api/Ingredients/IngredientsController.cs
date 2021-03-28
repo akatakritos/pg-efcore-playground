@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Demo.Api.Controllers;
-using Demo.Api.Data;
 using Demo.Api.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Demo.Api.Ingredients
 {
     [Route("recipes/")]
-    public class IngredientsController: ControllerBase
+    public class IngredientsController : ControllerBase
     {
         private readonly IMediator _mediator;
 
@@ -36,7 +35,7 @@ namespace Demo.Api.Ingredients
         public async Task<IActionResult> RemoveIngredient(Guid recipeKey, int recipeVersion, Guid recipeIngredientKey,
                                                           int recipeIngredientVersion)
         {
-            var request = new RemoveIngredientRequest()
+            var request = new RemoveIngredientRequest
             {
                 RecipeModelKey = new ModelUpdateIdentifier(recipeKey, recipeVersion),
                 RecipeIngredientModelKey = new ModelUpdateIdentifier(recipeIngredientKey, recipeIngredientVersion)

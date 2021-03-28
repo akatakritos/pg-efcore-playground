@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Npgsql;
 using StackExchange.Profiling;
+using StackExchange.Profiling.Data;
 
 namespace Demo.Api.Data
 {
@@ -25,13 +26,14 @@ namespace Demo.Api.Data
         public DbConnection GetConnection()
         {
             DbConnection connection = new NpgsqlConnection(_connectionString);
-            return new StackExchange.Profiling.Data.ProfiledDbConnection(connection, MiniProfiler.Current);
+            return new ProfiledDbConnection(connection, MiniProfiler.Current);
         }
     }
 
     public static class DatabaseExtensions
     {
-        public static async Task<IDbConnection> GetOpenConnection(this IDatabase db, CancellationToken cancellationToken = default)
+        public static async Task<IDbConnection> GetOpenConnection(this IDatabase db,
+                                                                  CancellationToken cancellationToken = default)
         {
             var connection = db.GetConnection();
             await connection.OpenAsync(cancellationToken);

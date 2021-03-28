@@ -1,14 +1,9 @@
-using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Xml;
 using AutoMapper;
 using Demo.Api.Data;
 using Demo.Api.Recipes;
 
 namespace Demo.Api.Shared
 {
-
     internal static class AutoMapperExtensions
     {
         public static IMappingExpression<TModel, TMessage> IncludeModelId<TModel, TMessage>(

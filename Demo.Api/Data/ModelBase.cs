@@ -6,50 +6,46 @@ namespace Demo.Api.Data
 {
     public class ModelBase : IModel
     {
-        private readonly int _id;
-        public int Id => _id;
+        public int Id { get; }
 
-        private Instant _createdAt;
-        public Instant CreatedAt => _createdAt;
+        public Instant CreatedAt { get; private set; }
 
-        private Instant _updatedAt;
-        public Instant UpdatedAt => _updatedAt;
+        public Instant UpdatedAt { get; private set; }
 
-        private Instant? _deletedAt;
-        public Instant? DeletedAt => _deletedAt;
+        public Instant? DeletedAt { get; private set; }
 
-        private readonly Guid _key = Guid.NewGuid();
+        public Guid Key { get; } = Guid.NewGuid();
 
-        public Guid Key => _key;
+        public int Version { get; private set; } = 1;
 
-        private int _version = 1;
-        public int Version => _version;
-
-        public void IncrementVersion() => _version++;
+        public void IncrementVersion()
+        {
+            Version++;
+        }
 
         public void MarkUpdated()
         {
-            _updatedAt = SystemClock.Instance.GetCurrentInstant();
-            _version++;
+            UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+            Version++;
         }
 
         public void MarkCreated()
         {
-            _createdAt = SystemClock.Instance.GetCurrentInstant();
-            _updatedAt = _createdAt;
-            _version = 1;
+            CreatedAt = SystemClock.Instance.GetCurrentInstant();
+            UpdatedAt = CreatedAt;
+            Version = 1;
         }
 
         public virtual void SoftDelete()
         {
-            _deletedAt = SystemClock.Instance.GetCurrentInstant();
+            DeletedAt = SystemClock.Instance.GetCurrentInstant();
             MarkUpdated();
         }
 
         // DDD domain models are considered equal if they have the same id
         protected bool Equals(ModelBase other)
         {
-            return _key.Equals(other._key);
+            return Key.Equals(other.Key);
         }
 
         public override bool Equals(object obj)
@@ -64,7 +60,7 @@ namespace Demo.Api.Data
                 return true;
             }
 
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }
@@ -74,7 +70,7 @@ namespace Demo.Api.Data
 
         public override int GetHashCode()
         {
-            return _key.GetHashCode();
+            return Key.GetHashCode();
         }
 
         public static bool operator ==(ModelBase left, ModelBase right)

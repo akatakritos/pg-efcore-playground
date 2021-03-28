@@ -25,11 +25,11 @@ namespace Demo.Api.Infrastructure
     // https://github.com/mattjohnsonpint/Dapper-NodaTime/tree/master/src/Dapper.NodaTime
     public class InstantHandler : SqlMapper.TypeHandler<Instant>
     {
+        public static readonly InstantHandler Default = new();
+
         private InstantHandler()
         {
         }
-
-        public static readonly InstantHandler Default = new InstantHandler();
 
         public override void SetValue(IDbDataParameter parameter, Instant value)
         {

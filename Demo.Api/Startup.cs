@@ -5,7 +5,6 @@ using Demo.Api.Data;
 using Demo.Api.Data.Migrations;
 using Demo.Api.Infrastructure;
 using Demo.Api.Infrastructure.ServiceRegistration;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -33,10 +32,7 @@ namespace Demo.Api
             services.AddOptions();
 
             services.AddControllers()
-                .AddJsonOptions(opt =>
-                {
-                    JsonConfiguration.ConfigureSystemTextJson(opt.JsonSerializerOptions);
-                });
+                .AddJsonOptions(opt => { JsonConfiguration.ConfigureSystemTextJson(opt.JsonSerializerOptions); });
 
 
             services.AddAppSwaggerGen();

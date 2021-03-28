@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Demo.Api.Controllers;
-using Demo.Api.Data;
 using Demo.Api.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Demo.Api.Recipes
 {
     [Route("recipes")]
-    public class RecipeController: ControllerBase
+    public class RecipeController : ControllerBase
     {
         private readonly IMediator _mediator;
 
@@ -34,7 +33,7 @@ namespace Demo.Api.Recipes
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<IActionResult> Get(Guid key)
         {
-            var result = await _mediator.Send(new GetRecipeRequest() { Key = key });
+            var result = await _mediator.Send(new GetRecipeRequest { Key = key });
             return Ok(result);
         }
     }

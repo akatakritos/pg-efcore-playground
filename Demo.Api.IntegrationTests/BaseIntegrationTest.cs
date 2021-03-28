@@ -7,7 +7,7 @@ namespace Demo.Api.IntegrationTests
 {
     public class BaseIntegrationTest : IAsyncLifetime
     {
-        private static readonly AsyncLock Mutex = new AsyncLock();
+        private static readonly AsyncLock Mutex = new();
 
         private static bool _initialized;
 
@@ -19,12 +19,16 @@ namespace Demo.Api.IntegrationTests
         public virtual async Task InitializeAsync()
         {
             if (_initialized)
+            {
                 return;
+            }
 
             using (await Mutex.LockAsync())
             {
                 if (_initialized)
+                {
                     return;
+                }
 
                 var migrator = new DbUpMigrator(AppFixture.ConnectionString);
                 migrator.Migrate();
@@ -35,6 +39,9 @@ namespace Demo.Api.IntegrationTests
             }
         }
 
-        public virtual Task DisposeAsync() => Task.CompletedTask;
+        public virtual Task DisposeAsync()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

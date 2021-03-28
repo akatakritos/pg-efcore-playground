@@ -35,8 +35,8 @@ namespace Demo.Api.Ingredients
 
     public class AddIngredientHandler : IRequestHandler<AddIngredientRequest, ModelUpdateIdentifier>
     {
-        private readonly IMapper _mapper;
         private readonly PlaygroundContext _context;
+        private readonly IMapper _mapper;
 
         public AddIngredientHandler(IMapper mapper, PlaygroundContext context)
         {
@@ -44,19 +44,23 @@ namespace Demo.Api.Ingredients
             _context = context;
         }
 
-        public async Task<ModelUpdateIdentifier> Handle(AddIngredientRequest request, CancellationToken cancellationToken)
+        public async Task<ModelUpdateIdentifier> Handle(AddIngredientRequest request,
+                                                        CancellationToken cancellationToken)
         {
             var recipe = await _context.Recipes
                 .Include(x => x.RecipeIngredients)
                 .ThenInclude(x => x.Ingredient)
                 .Where(x => x.Key == request.RecipeKey)
-                .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (recipe == null) throw new RecordNotFoundException(nameof(Recipe), request.RecipeKey);
+            if (recipe == null)
+            {
+                throw new RecordNotFoundException(nameof(Recipe), request.RecipeKey);
+            }
 
             var existingIngredient = await _context.Ingredients
                 .Where(x => x.Name == request.Name)
-                .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
 
             var ingredient = existingIngredient ?? _mapper.Map<Ingredient>(request);
             var recipeIngredient = recipe.AddIngredient(ingredient, request.UnitOfMeasure, request.Quantity);
@@ -65,5 +69,4 @@ namespace Demo.Api.Ingredients
             return new ModelUpdateIdentifier(recipeIngredient.Key, recipeIngredient.Version);
         }
     }
-
 }

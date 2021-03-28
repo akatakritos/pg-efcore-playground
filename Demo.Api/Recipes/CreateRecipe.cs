@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -11,7 +10,7 @@ using NodaTime;
 
 namespace Demo.Api.Recipes
 {
-    public class CreateRecipeCommand: IRequest<ModelUpdateIdentifier>
+    public class CreateRecipeCommand : IRequest<ModelUpdateIdentifier>
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -32,8 +31,8 @@ namespace Demo.Api.Recipes
 
     public class CreateRecipeCommandHandler : IRequestHandler<CreateRecipeCommand, ModelUpdateIdentifier>
     {
-        private readonly IMapper _mapper;
         private readonly PlaygroundContext _context;
+        private readonly IMapper _mapper;
 
         public CreateRecipeCommandHandler(IMapper mapper, PlaygroundContext context)
         {
@@ -41,7 +40,8 @@ namespace Demo.Api.Recipes
             _context = context;
         }
 
-        public async Task<ModelUpdateIdentifier> Handle(CreateRecipeCommand request, CancellationToken cancellationToken)
+        public async Task<ModelUpdateIdentifier> Handle(CreateRecipeCommand request,
+                                                        CancellationToken cancellationToken)
         {
             var recipe = _mapper.Map<Recipe>(request);
             _context.Recipes.Add(recipe);

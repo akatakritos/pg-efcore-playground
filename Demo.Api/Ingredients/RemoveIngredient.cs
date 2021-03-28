@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Demo.Api.Ingredients
 {
-    public class RemoveIngredientRequest: IRequest
+    public class RemoveIngredientRequest : IRequest
     {
         public ModelUpdateIdentifier RecipeModelKey { get; set; }
         public ModelUpdateIdentifier RecipeIngredientModelKey { get; set; }
@@ -19,8 +18,8 @@ namespace Demo.Api.Ingredients
 
     public class RemoveIngredientRequestHandler : IRequestHandler<RemoveIngredientRequest>
     {
-        private readonly IMapper _mapper;
         private readonly PlaygroundContext _context;
+        private readonly IMapper _mapper;
 
         public RemoveIngredientRequestHandler(IMapper mapper, PlaygroundContext context)
         {
@@ -36,7 +35,10 @@ namespace Demo.Api.Ingredients
                 .Include(x => x.RecipeIngredients)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (recipes == null) throw new RecordNotFoundException(nameof(Recipe), request.RecipeModelKey);
+            if (recipes == null)
+            {
+                throw new RecordNotFoundException(nameof(Recipe), request.RecipeModelKey);
+            }
 
             recipes.RemoveIngredient(request.RecipeIngredientModelKey);
 

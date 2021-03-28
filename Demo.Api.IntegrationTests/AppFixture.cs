@@ -20,19 +20,9 @@ namespace Demo.Api.IntegrationTests
 {
     public static class AppFixture
     {
-        class HostEnvironment : IHostEnvironment
-        {
-            public string ApplicationName { get; set; }
-            public IFileProvider ContentRootFileProvider { get; set; }
-            public string ContentRootPath { get; set; }
-            public string EnvironmentName { get; set; } = "Development";
-        }
-
         private static readonly Checkpoint _checkpoint;
         private static readonly IConfigurationRoot _configuration;
         private static readonly IServiceScopeFactory _scopeFactory;
-
-        public static string ConnectionString { get; }
 
 
         static AppFixture()
@@ -53,7 +43,7 @@ namespace Demo.Api.IntegrationTests
             var container = builder.Build();
 
             _scopeFactory = container.Resolve<IServiceScopeFactory>();
-            _checkpoint = new Checkpoint()
+            _checkpoint = new Checkpoint
             {
                 DbAdapter = DbAdapter.Postgres,
                 TablesToIgnore = new[]
@@ -66,6 +56,8 @@ namespace Demo.Api.IntegrationTests
             ConnectionString = _configuration.GetConnectionString("Postgres");
             Debug.Assert(ConnectionString.Contains("_test"));
         }
+
+        public static string ConnectionString { get; }
 
         public static async Task ResetCheckpoint()
         {
@@ -121,16 +113,24 @@ namespace Demo.Api.IntegrationTests
         }
 
         public static Task ExecuteDbContextAsync(Func<PlaygroundContext, Task> action)
-            => ExecuteScopeAsync(sp => action(sp.GetService<PlaygroundContext>()));
+        {
+            return ExecuteScopeAsync(sp => action(sp.GetService<PlaygroundContext>()));
+        }
 
         public static Task ExecuteDbContextAsync(Func<PlaygroundContext, IMediator, Task> action)
-            => ExecuteScopeAsync(sp => action(sp.GetService<PlaygroundContext>(), sp.GetService<IMediator>()));
+        {
+            return ExecuteScopeAsync(sp => action(sp.GetService<PlaygroundContext>(), sp.GetService<IMediator>()));
+        }
 
         public static Task<T> ExecuteDbContextAsync<T>(Func<PlaygroundContext, Task<T>> action)
-            => ExecuteScopeAsync(sp => action(sp.GetService<PlaygroundContext>()));
+        {
+            return ExecuteScopeAsync(sp => action(sp.GetService<PlaygroundContext>()));
+        }
 
         public static Task<T> ExecuteDbContextAsync<T>(Func<PlaygroundContext, IMediator, Task<T>> action)
-            => ExecuteScopeAsync(sp => action(sp.GetService<PlaygroundContext>(), sp.GetService<IMediator>()));
+        {
+            return ExecuteScopeAsync(sp => action(sp.GetService<PlaygroundContext>(), sp.GetService<IMediator>()));
+        }
 
         public static Task InsertAsync<T>(params T[] entities) where T : class
         {
@@ -140,6 +140,7 @@ namespace Demo.Api.IntegrationTests
                 {
                     db.Set<T>().Add(entity);
                 }
+
                 return db.SaveChangesAsync();
             });
         }
@@ -182,7 +183,8 @@ namespace Demo.Api.IntegrationTests
             });
         }
 
-        public static Task InsertAsync<TEntity, TEntity2, TEntity3, TEntity4>(TEntity entity, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4)
+        public static Task InsertAsync<TEntity, TEntity2, TEntity3, TEntity4>(
+            TEntity entity, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4)
             where TEntity : class
             where TEntity2 : class
             where TEntity3 : class
@@ -223,6 +225,14 @@ namespace Demo.Api.IntegrationTests
 
                 return mediator.Send(request);
             });
+        }
+
+        private class HostEnvironment : IHostEnvironment
+        {
+            public string ApplicationName { get; set; }
+            public IFileProvider ContentRootFileProvider { get; set; }
+            public string ContentRootPath { get; set; }
+            public string EnvironmentName { get; set; } = "Development";
         }
     }
 }

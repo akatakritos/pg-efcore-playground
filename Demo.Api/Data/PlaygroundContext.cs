@@ -56,7 +56,6 @@ namespace Demo.Api.Data
                     .HasForeignKey(e => e.IngredientId);
 
                 entity.Property(e => e.Quantity);
-
             });
 
             modelBuilder.Entity<Ingredient>(entity =>
@@ -120,7 +119,8 @@ namespace Demo.Api.Data
                 return;
             }
 
-            _currentTransaction = await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
+            _currentTransaction =
+                await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
         }
 
         public async Task CommitTransactionAsync()

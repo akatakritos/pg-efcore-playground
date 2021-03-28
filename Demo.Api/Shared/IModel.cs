@@ -1,6 +1,4 @@
 using System;
-using AutoMapper;
-using Demo.Api.Data;
 
 namespace Demo.Api.Shared
 {
@@ -12,11 +10,13 @@ namespace Demo.Api.Shared
 
     public record ModelUpdateIdentifier(Guid Key, int Version)
     {
-        public bool Matches(IModel model) => model.Key == Key && model.Version == Version;
-
-        public ModelUpdateIdentifier(IModel from): this(from.Key, from.Version)
+        public ModelUpdateIdentifier(IModel from) : this(from.Key, from.Version)
         {
         }
-    }
 
+        public bool Matches(IModel model)
+        {
+            return model.Key == Key && model.Version == Version;
+        }
+    }
 }

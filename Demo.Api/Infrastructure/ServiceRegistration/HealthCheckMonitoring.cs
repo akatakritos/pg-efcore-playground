@@ -29,7 +29,6 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
                         new JsonSerializerOptions { WriteIndented = true })
             });
         }
-
     }
 
     public class IndividualHealthCheckResponse

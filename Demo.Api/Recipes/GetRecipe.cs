@@ -20,7 +20,8 @@ namespace Demo.Api.Recipes
         public Instant UpdatedAt { get; set; }
         public ModelUpdateIdentifier ModelKey { get; set; }
     }
-    public class RecipeResponse: ModelResponseBase
+
+    public class RecipeResponse : ModelResponseBase
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -29,7 +30,7 @@ namespace Demo.Api.Recipes
         public IReadOnlyList<RecipeIngredientResponse> RecipeIngredients { get; set; }
     }
 
-    public class RecipeIngredientResponse: ModelResponseBase
+    public class RecipeIngredientResponse : ModelResponseBase
     {
         public UnitOfMeasure UnitOfMeasure { get; set; }
         public IngredientResponse Ingredient { get; set; }
@@ -41,7 +42,7 @@ namespace Demo.Api.Recipes
         public string Name { get; set; }
     }
 
-    public class GetRecipeRequest: IRequest<RecipeResponse>
+    public class GetRecipeRequest : IRequest<RecipeResponse>
     {
         public Guid Key { get; set; }
     }
@@ -66,7 +67,10 @@ namespace Demo.Api.Recipes
                 .ProjectTo<RecipeResponse>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (recipe == null) throw new RecordNotFoundException(nameof(Recipe), request.Key);
+            if (recipe == null)
+            {
+                throw new RecordNotFoundException(nameof(Recipe), request.Key);
+            }
 
             return recipe;
         }

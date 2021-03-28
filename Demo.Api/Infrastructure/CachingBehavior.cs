@@ -8,7 +8,7 @@ using Serilog.Core;
 namespace Demo.Api.Infrastructure
 {
     /// <summary>
-    /// This is not a production implementation of a cache. use a better one with eviction policies
+    ///     This is not a production implementation of a cache. use a better one with eviction policies
     /// </summary>
     public static class TerribleCache
     {
@@ -31,7 +31,10 @@ namespace Demo.Api.Infrastructure
 
         public static void Remove(string key)
         {
-            if (HasKey(key)) _cache.Remove(key);
+            if (HasKey(key))
+            {
+                _cache.Remove(key);
+            }
         }
     }
 
@@ -46,7 +49,7 @@ namespace Demo.Api.Infrastructure
     }
 
     /// <summary>
-    /// Example middleware to do caching. Requests can specify a cache key to be stored under.
+    ///     Example middleware to do caching. Requests can specify a cache key to be stored under.
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>

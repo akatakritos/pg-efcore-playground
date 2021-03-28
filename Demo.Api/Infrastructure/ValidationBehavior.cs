@@ -26,7 +26,7 @@ namespace Demo.Api.Infrastructure
         }
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken,
-            RequestHandlerDelegate<TResponse> next)
+                                            RequestHandlerDelegate<TResponse> next)
         {
             using (MiniProfiler.Current.Step("Checking Validations"))
             {

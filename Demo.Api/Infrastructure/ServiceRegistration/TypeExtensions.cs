@@ -10,9 +10,9 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
             bool MatchesInterface(Type type)
             {
                 return type == @interface ||
-                       (@interface.IsGenericType
-                        && type.IsGenericType
-                        && type.GetGenericTypeDefinition() == @interface);
+                       @interface.IsGenericType
+                       && type.IsGenericType
+                       && type.GetGenericTypeDefinition() == @interface;
             }
 
             return t.FindInterfaces((type, _) => MatchesInterface(type), null).Any();

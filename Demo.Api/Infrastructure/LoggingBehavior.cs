@@ -7,15 +7,16 @@ using Serilog.Core;
 
 namespace Demo.Api.Infrastructure
 {
-    public class LoggingBehavior<TRequest, TResponse>: IPipelineBehavior<TRequest, TResponse>
-        where TRequest: IRequest<TResponse>
+    public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
     {
         // Log.ForContext<Type> gives a gnarly name due to generics
         // ReSharper disable once StaticMemberInGenericType
         private static readonly ILogger _log = Log.ForContext(Constants.SourceContextPropertyName,
             typeof(LoggingBehavior<,>).FullName);
 
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken,
+                                            RequestHandlerDelegate<TResponse> next)
         {
             _log.Information("Running handler for {RequestName}", typeof(TRequest).Name);
 

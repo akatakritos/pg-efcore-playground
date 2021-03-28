@@ -8,7 +8,7 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
     {
         public static void AddAppMiniProfiler(this IServiceCollection services)
         {
-                services.AddMiniProfiler(options =>
+            services.AddMiniProfiler(options =>
             {
                 // All of this is optional. You can simply call .AddMiniProfiler() for all defaults
 
@@ -79,6 +79,5 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
                 //options.EnableDebugMode = true;
             }).AddEntityFramework();
         }
-
     }
 }

@@ -10,30 +10,31 @@ using Xunit;
 
 namespace Demo.Api.IntegrationTests.Ingredients
 {
-    public class RemoveIngredientTests: BaseIntegrationTest
+    public class RemoveIngredientTests : BaseIntegrationTest
     {
         [Fact]
         public async Task ItRemovesTheIngredient()
         {
-            var original = new Recipe()
+            var original = new Recipe
             {
                 Name = nameof(ItRemovesTheIngredient)
             };
 
-            var toDelete = original.AddIngredient(new Ingredient() { Name = Guid.NewGuid().ToString() }, UnitOfMeasure.Cup, 2M);
-            original.AddIngredient(new Ingredient() { Name = Guid.NewGuid().ToString() }, UnitOfMeasure.Pint, 5M);
+            var toDelete = original.AddIngredient(new Ingredient { Name = Guid.NewGuid().ToString() },
+                UnitOfMeasure.Cup, 2M);
+            original.AddIngredient(new Ingredient { Name = Guid.NewGuid().ToString() }, UnitOfMeasure.Pint, 5M);
 
             await AppFixture.InsertAsync(original);
 
-            var request = new RemoveIngredientRequest()
+            var request = new RemoveIngredientRequest
             {
-                RecipeModelKey = new ModelUpdateIdentifier(from: original),
-                RecipeIngredientModelKey = new ModelUpdateIdentifier(from: toDelete)
+                RecipeModelKey = new ModelUpdateIdentifier(original),
+                RecipeIngredientModelKey = new ModelUpdateIdentifier(toDelete)
             };
 
             await AppFixture.SendAsync(request);
 
-            var saved = await AppFixture.ExecuteDbContextAsync(async (db) =>
+            var saved = await AppFixture.ExecuteDbContextAsync(async db =>
             {
                 return await db.Recipes.Where(x => x.Id == original.Id).Include(x => x.RecipeIngredients)
                     .FirstOrDefaultAsync();
@@ -42,6 +43,5 @@ namespace Demo.Api.IntegrationTests.Ingredients
             saved.RecipeIngredients.Should().HaveCount(1);
             saved.RecipeIngredients[0].UnitOfMeasure.Should().Be(UnitOfMeasure.Pint);
         }
-
     }
 }

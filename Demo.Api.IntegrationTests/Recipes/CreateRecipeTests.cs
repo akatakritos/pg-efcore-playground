@@ -8,12 +8,12 @@ using Xunit;
 
 namespace Demo.Api.IntegrationTests.Recipes
 {
-    public class CreateRecipeTests: BaseIntegrationTest
+    public class CreateRecipeTests : BaseIntegrationTest
     {
         [Fact]
         public async Task ARecipeIsCreated()
         {
-            var cmd = new CreateRecipeCommand()
+            var cmd = new CreateRecipeCommand
             {
                 Name = "Chocolate Cake",
                 Description = "Best birthday cake",
@@ -30,6 +30,5 @@ namespace Demo.Api.IntegrationTests.Recipes
             saved.Description.Should().Be("Best birthday cake");
             saved.CookTime.Should().Be(Duration.FromMinutes(60));
         }
-
     }
 }

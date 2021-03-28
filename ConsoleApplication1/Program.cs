@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Demo.Api.Data;
 using Demo.Api.Domain;
 using Faker;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using Enum = Faker.Enum;
 
 namespace ConsoleApplication1
 {
@@ -32,20 +32,20 @@ namespace ConsoleApplication1
                     .EnableSensitiveDataLogging().Options);
 
                 var recipe = new Recipe();
-                recipe.Name = Faker.Company.Name();
-                recipe.Description = Faker.Company.BS();
-                recipe.CookTime = Duration.FromMinutes(Faker.RandomNumber.Next(1, 60));
-                recipe.PrepTime = Duration.FromMinutes(Faker.RandomNumber.Next(1, 60));
+                recipe.Name = Company.Name();
+                recipe.Description = Company.BS();
+                recipe.CookTime = Duration.FromMinutes(RandomNumber.Next(1, 60));
+                recipe.PrepTime = Duration.FromMinutes(RandomNumber.Next(1, 60));
 
-                var ingredientCount = Faker.RandomNumber.Next(3, 8);
-                for (int j = 0; j < ingredientCount; j++)
+                var ingredientCount = RandomNumber.Next(3, 8);
+                for (var j = 0; j < ingredientCount; j++)
                 {
-                    var ingredientName = Faker.Name.FullName();
+                    var ingredientName = Name.FullName();
                     var existing = await context.Ingredients.FirstOrDefaultAsync(i => i.Name == ingredientName);
-                    var ingredient = existing ?? new Ingredient() { Name = ingredientName };
+                    var ingredient = existing ?? new Ingredient { Name = ingredientName };
 
-                    var units = Faker.Enum.Random<UnitOfMeasure>();
-                    var quantity = Faker.RandomNumber.Next(1, 16) / 4.0M;
+                    var units = Enum.Random<UnitOfMeasure>();
+                    var quantity = RandomNumber.Next(1, 16) / 4.0M;
                     recipe.AddIngredient(ingredient, units, quantity);
                 }
 

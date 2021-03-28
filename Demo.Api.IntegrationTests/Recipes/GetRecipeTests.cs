@@ -13,9 +13,9 @@ namespace Demo.Api.IntegrationTests.Recipes
         [Fact]
         public async Task GetRecipe_FetchesAndMaps()
         {
-            var recipe = await AppFixture.ExecuteDbContextAsync(async (db) =>
+            var recipe = await AppFixture.ExecuteDbContextAsync(async db =>
             {
-                var recipe = new Recipe()
+                var recipe = new Recipe
                 {
                     Name = "Test fetch" + Guid.NewGuid(),
                     Description = "Testing a load",
@@ -23,14 +23,14 @@ namespace Demo.Api.IntegrationTests.Recipes
                     PrepTime = Duration.FromMinutes(15)
                 };
 
-                var ingredient = new Ingredient() { Name = "Sugar" };
+                var ingredient = new Ingredient { Name = "Sugar" };
                 recipe.AddIngredient(ingredient, UnitOfMeasure.Cup, 1M);
                 db.Recipes.Add(recipe);
                 await Task.CompletedTask;
                 return recipe;
             });
 
-            var response = await AppFixture.SendAsync(new GetRecipeRequest() { Key = recipe.Key });
+            var response = await AppFixture.SendAsync(new GetRecipeRequest { Key = recipe.Key });
             response.Name.Should().StartWith("Test fetch");
             response.CookTime.Should().Be(Duration.FromHours(1));
             response.RecipeIngredients.Should().HaveCount(1);

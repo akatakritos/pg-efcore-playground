@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Demo.Api.Data;
 using Demo.Api.Domain;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -11,19 +10,19 @@ using Xunit;
 
 namespace Demo.Api.IntegrationTests.Data
 {
-    public class PlaygroundContextTests: BaseIntegrationTest
+    public class PlaygroundContextTests : BaseIntegrationTest
     {
         [Fact]
         public async Task ItBumpsTheVersionAndEditTime()
         {
-            var original = new Recipe()
+            var original = new Recipe
             {
                 Name = "Chocolate Milk"
             };
 
             await AppFixture.InsertAsync(original);
 
-            await AppFixture.ExecuteDbContextAsync(async (db) =>
+            await AppFixture.ExecuteDbContextAsync(async db =>
             {
                 var saved = await db.Recipes.FirstOrDefaultAsync(x => x.Key == original.Key);
                 saved.Name = "Milk";
@@ -45,7 +44,7 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task ItTreatsVersionAsConcurrencyToken()
         {
-            var original = new Recipe()
+            var original = new Recipe
             {
                 Name = "Concurrency Check"
             };
@@ -53,7 +52,7 @@ namespace Demo.Api.IntegrationTests.Data
 
             Check.ThatAsyncCode(async () =>
             {
-                await AppFixture.ExecuteDbContextAsync(async (db) =>
+                await AppFixture.ExecuteDbContextAsync(async db =>
                 {
                     var saved = await db.Recipes.FirstOrDefaultAsync(x => x.Key == original.Key);
                     saved.Name = "Sally";
@@ -69,39 +68,38 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task ItSoftDeletesRecords()
         {
-            var original = new Recipe() { Name = "Soft Delete Check" };
+            var original = new Recipe { Name = "Soft Delete Check" };
             await AppFixture.InsertAsync(original);
 
-            await AppFixture.ExecuteDbContextAsync(async (db) =>
+            await AppFixture.ExecuteDbContextAsync(async db =>
             {
                 var saved = await db.Recipes.FindAsync(original.Id);
-                saved.Should().NotBeNull(because: "we just saved it");
+                saved.Should().NotBeNull("we just saved it");
 
                 saved.SoftDelete();
                 // db.Remove(saved);
             });
 
             var deleted = await AppFixture.FindAsync<Recipe>(original.Key);
-            deleted.Should().BeNull(because: "Recipe {0} was soft-deleted", original.Key);
-
+            deleted.Should().BeNull("Recipe {0} was soft-deleted", original.Key);
         }
 
         [Fact]
         public async Task CanSaveASimpleRecipe()
         {
-            var recipe = new Recipe()
+            var recipe = new Recipe
             {
                 Name = "Chocolate Milk",
                 PrepTime = Duration.FromMinutes(3),
                 CookTime = Duration.Zero
             };
 
-            var milk = new Ingredient()
+            var milk = new Ingredient
             {
                 Name = "Milk"
             };
 
-            var chocolateSauce = new Ingredient()
+            var chocolateSauce = new Ingredient
             {
                 Name = "Chocolate Sauce"
             };
@@ -138,8 +136,6 @@ namespace Demo.Api.IntegrationTests.Data
                         second.UnitOfMeasure.Should().Be(UnitOfMeasure.Tablespoon);
                         second.Ingredient.Should().Be(chocolateSauce);
                     });
-
         }
-
     }
 }
