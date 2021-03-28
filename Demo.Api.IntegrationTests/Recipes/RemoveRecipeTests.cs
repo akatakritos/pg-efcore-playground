@@ -13,7 +13,7 @@ namespace Demo.Api.IntegrationTests.Recipes
         [Fact]
         public async Task ItDeletesRecipeAndIngredients()
         {
-            var recipe = new Recipe() { Name = nameof(ItDeletesRecipeAndIngredients) };
+            var recipe = new Recipe(name: nameof(ItDeletesRecipeAndIngredients));
             var ingredient = new Ingredient() { Name = Guid.NewGuid().ToString() };
             recipe.AddIngredient(ingredient, UnitOfMeasure.Cup, 10M);
             await AppFixture.InsertAsync(recipe);

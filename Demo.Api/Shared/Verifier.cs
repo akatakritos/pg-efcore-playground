@@ -34,6 +34,18 @@ namespace Demo.Api.Shared
             return verifier;
         }
 
+        public static Verifier<string> IsNotNullOrEmpty(this Verifier<string> verifier)
+        {
+            if (string.IsNullOrEmpty(verifier.Value))
+            {
+                var description = verifier.Value == null ? "null" : "empty";
+                throw new ArgumentException(
+                    $"'{verifier.ParamName}' should have contents but it was {description}", verifier.ParamName);
+            }
+
+            return verifier;
+        }
+
         public static Verifier<decimal> IsGreaterThan(this Verifier<decimal> verifier, decimal target)
         {
             if (verifier.Value <= target)

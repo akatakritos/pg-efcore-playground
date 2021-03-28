@@ -15,10 +15,7 @@ namespace Demo.Api.IntegrationTests.Ingredients
         [Fact]
         public async Task ItRemovesTheIngredient()
         {
-            var original = new Recipe
-            {
-                Name = nameof(ItRemovesTheIngredient)
-            };
+            var original = new Recipe(name: nameof(ItRemovesTheIngredient));
 
             var toDelete = original.AddIngredient(new Ingredient { Name = Guid.NewGuid().ToString() },
                 UnitOfMeasure.Cup, 2M);

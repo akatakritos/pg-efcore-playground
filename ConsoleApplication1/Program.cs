@@ -34,8 +34,7 @@ namespace ConsoleApplication1
                     .UseSnakeCaseNamingConvention()
                     .EnableSensitiveDataLogging().Options);
 
-                var recipe = new Recipe();
-                recipe.Name = Company.Name();
+                var recipe = new Recipe(name: Company.Name());
                 recipe.Description = Company.BS();
                 recipe.CookTime = Duration.FromMinutes(RandomNumber.Next(1, 60));
                 recipe.PrepTime = Duration.FromMinutes(RandomNumber.Next(1, 60));

@@ -26,7 +26,7 @@ namespace Demo.Api.Data
         public void MarkUpdated()
         {
             UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-            Version++;
+            IncrementVersion();
         }
 
         public void MarkCreated()
@@ -42,7 +42,9 @@ namespace Demo.Api.Data
             MarkUpdated();
         }
 
-        // DDD domain models are considered equal if they have the same id
+        // DDD domain models are considered equal if they have the same identifier.
+        // in our design, the key is a better domain identifier than the database PK, since we never
+        // expose the PK
         protected bool Equals(ModelBase other)
         {
             return Key.Equals(other.Key);
@@ -58,11 +60,6 @@ namespace Demo.Api.Data
             if (ReferenceEquals(this, obj))
             {
                 return true;
-            }
-
-            if (obj.GetType() != GetType())
-            {
-                return false;
             }
 
             return Equals((ModelBase) obj);

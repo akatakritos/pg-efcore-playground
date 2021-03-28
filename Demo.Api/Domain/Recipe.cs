@@ -10,14 +10,30 @@ namespace Demo.Api.Domain
     public class Recipe : ModelBase
     {
         private readonly List<RecipeIngredient> _recipeIngredients = new();
-        public string Name { get; set; }
+
+        private string _name;
+        public string Name
+        {
+            get => _name;
+            set => _name = Verify.Param(value, nameof(Name)).IsNotNullOrEmpty().Value;
+        }
 
         public string Description { get; set; }
 
-        public Duration CookTime { get; set; }
+        public Duration CookTime { get; set; } = Duration.Zero;
 
-        public Duration PrepTime { get; set; }
+        public Duration PrepTime { get; set; } = Duration.Zero;
         public virtual IReadOnlyList<RecipeIngredient> RecipeIngredients => _recipeIngredients;
+
+        // needed for EF
+        // ReSharper disable once MemberCanBePrivate.Global
+        protected Recipe(){}
+
+        public Recipe(string name): this()
+        {
+            Name = name;
+        }
+
 
         public RecipeIngredient AddIngredient(Ingredient ingredient, UnitOfMeasure unitOfMeasure, decimal quantity)
         {

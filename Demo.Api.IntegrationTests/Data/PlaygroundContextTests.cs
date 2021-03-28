@@ -14,10 +14,7 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task ItBumpsTheVersionAndEditTime()
         {
-            var original = new Recipe
-            {
-                Name = "Chocolate Milk"
-            };
+            var original = new Recipe(name: nameof(ItBumpsTheVersionAndEditTime));
 
             await AppFixture.InsertAsync(original);
 
@@ -41,10 +38,7 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task ItTreatsVersionAsConcurrencyToken()
         {
-            var original = new Recipe
-            {
-                Name = "Concurrency Check"
-            };
+            var original = new Recipe(name: nameof(ItTreatsVersionAsConcurrencyToken));
             await AppFixture.InsertAsync(original);
 
             FluentActions.Invoking(async () =>
@@ -65,7 +59,7 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task ItSoftDeletesRecords()
         {
-            var original = new Recipe { Name = "Soft Delete Check" };
+            var original = new Recipe(name: nameof(ItSoftDeletesRecords));
             await AppFixture.InsertAsync(original);
 
             await AppFixture.ExecuteDbContextAsync(async db =>
@@ -84,9 +78,8 @@ namespace Demo.Api.IntegrationTests.Data
         [Fact]
         public async Task CanSaveASimpleRecipe()
         {
-            var recipe = new Recipe
+            var recipe = new Recipe(name: "Chocolate Milk")
             {
-                Name = "Chocolate Milk",
                 PrepTime = Duration.FromMinutes(3),
                 CookTime = Duration.Zero
             };

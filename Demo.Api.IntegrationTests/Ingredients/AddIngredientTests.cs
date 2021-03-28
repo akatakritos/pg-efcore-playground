@@ -17,10 +17,7 @@ namespace Demo.Api.IntegrationTests.Ingredients
         {
             var ingredientName = Guid.NewGuid().ToString();
 
-            var recipe = new Recipe
-            {
-                Name = nameof(ItAddsAnIngredient)
-            };
+            var recipe = new Recipe(name: nameof(ItAddsAnIngredient));
             await AppFixture.InsertAsync(recipe);
 
             var result = await AppFixture.SendAsync(new AddIngredientRequest
