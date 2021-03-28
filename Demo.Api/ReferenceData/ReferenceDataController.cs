@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Demo.Api.ReferenceData
 {
     [Route("refdata/")]
-    public class ReferenceDataController: ControllerBase
+    public class ReferenceDataController : ControllerBase
     {
         private readonly IMediator _mediator;
 

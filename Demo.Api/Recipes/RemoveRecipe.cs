@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Demo.Api.Data;
@@ -7,7 +6,7 @@ using MediatR;
 
 namespace Demo.Api.Recipes
 {
-    public class RemoveRecipeRequest: IRequest<Unit>
+    public class RemoveRecipeRequest : IRequest<Unit>
     {
         public ModelUpdateIdentifier RecipeKey { get; set; }
     }

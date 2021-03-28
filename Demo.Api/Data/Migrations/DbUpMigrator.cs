@@ -18,6 +18,7 @@ namespace Demo.Api.Data.Migrations
         {
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
+
         public static bool IsReRunnableMigration(string filename)
         {
             return filename.StartsWith("Demo.Api.Data.Migrations.R");
@@ -25,7 +26,6 @@ namespace Demo.Api.Data.Migrations
 
         public void Migrate()
         {
-
             _log.Information("Migrating database");
             var upgrader = DeployChanges
                 .To.PostgresqlDatabase(_connectionString)

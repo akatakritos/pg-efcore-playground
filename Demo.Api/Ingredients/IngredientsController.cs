@@ -21,7 +21,8 @@ namespace Demo.Api.Ingredients
         [ProducesResponseType(typeof(ModelUpdateIdentifier), 200)]
         [ProducesResponseType(typeof(ValidationErrorResponse), 400)]
         [ProducesErrorResponseType(typeof(ErrorResponse))]
-        public async Task<IActionResult> AddIngredient(Guid recipeKey, int recipeVersion, [FromBody] AddIngredientRequest request)
+        public async Task<IActionResult> AddIngredient(Guid recipeKey, int recipeVersion,
+                                                       [FromBody] AddIngredientRequest request)
         {
             request.RecipeKey = new ModelUpdateIdentifier(recipeKey, recipeVersion);
             var result = await _mediator.Send(request);

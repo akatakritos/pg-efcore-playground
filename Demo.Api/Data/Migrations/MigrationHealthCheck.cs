@@ -12,13 +12,8 @@ namespace Demo.Api.Infrastructure
 {
     public class MigrationHealthCheck : IHealthCheck
     {
-        private class MigrationHistory
-        {
-            public string ScriptName { get; set; }
-        }
-
         private readonly IDatabase _db;
-        private IList<string> _migrationScripts;
+        private readonly IList<string> _migrationScripts;
 
         public MigrationHealthCheck(IDatabase db)
         {
@@ -29,7 +24,8 @@ namespace Demo.Api.Infrastructure
                 .ToList();
         }
 
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
+                                                              CancellationToken cancellationToken = default)
         {
             using var connection = await _db.GetOpenConnection(cancellationToken);
             var appliedScripts =
@@ -40,20 +36,24 @@ namespace Demo.Api.Infrastructure
             var unapplied = _migrationScripts.Except(appliedScripts).ToList();
             if (unapplied.Count > 0)
             {
-                var extraData = new Dictionary<string, object>()
+                var extraData = new Dictionary<string, object>
                 {
-                    { "unAppliedScripts", unapplied },
+                    { "unAppliedScripts", unapplied }
                 };
 
                 return HealthCheckResult.Degraded("Found embedded migrations that have not been run", data: extraData);
             }
 
             return HealthCheckResult.Healthy("All embedded migrations have been executed",
-                data: new Dictionary<string, object>()
+                new Dictionary<string, object>
                 {
                     { "migrations", appliedScripts }
                 });
+        }
 
+        private class MigrationHistory
+        {
+            public string ScriptName { get; set; }
         }
     }
 }

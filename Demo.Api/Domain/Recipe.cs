@@ -7,11 +7,24 @@ using NodaTime;
 
 namespace Demo.Api.Domain
 {
+    // aggregate root
     public class Recipe : ModelBase
     {
         private readonly List<RecipeIngredient> _recipeIngredients = new();
 
         private string _name;
+
+        // needed for EF
+        // ReSharper disable once MemberCanBePrivate.Global
+        protected Recipe()
+        {
+        }
+
+        public Recipe(string name) : this()
+        {
+            Name = name;
+        }
+
         public string Name
         {
             get => _name;
@@ -25,19 +38,11 @@ namespace Demo.Api.Domain
         public Duration PrepTime { get; set; } = Duration.Zero;
         public virtual IReadOnlyList<RecipeIngredient> RecipeIngredients => _recipeIngredients;
 
-        // needed for EF
-        // ReSharper disable once MemberCanBePrivate.Global
-        protected Recipe(){}
-
-        public Recipe(string name): this()
-        {
-            Name = name;
-        }
-
 
         public RecipeIngredient AddIngredient(Ingredient ingredient, UnitOfMeasure unitOfMeasure, decimal quantity)
         {
             Verify.Param(ingredient, nameof(ingredient)).IsNotNull();
+            Verify.Param(unitOfMeasure, nameof(unitOfMeasure)).IsNotNull();
             Verify.Param(quantity, nameof(quantity)).IsGreaterThan(0M);
 
             if (RecipeIngredients.Any(ri => ri.Ingredient == ri))
@@ -78,6 +83,7 @@ namespace Demo.Api.Domain
             {
                 recipe.SoftDelete();
             }
+
             _recipeIngredients.Clear();
         }
     }

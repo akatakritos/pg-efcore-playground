@@ -23,7 +23,8 @@ namespace Demo.Api.Data
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
 
-        public async  Task<Recipe> GetRecipeForUpdate(ModelUpdateIdentifier identifier, CancellationToken cancellationToken = default)
+        public async Task<Recipe> GetRecipeForUpdate(ModelUpdateIdentifier identifier,
+                                                     CancellationToken cancellationToken = default)
         {
             return await Recipes
                 .Include(r => r.RecipeIngredients)
@@ -68,8 +69,8 @@ namespace Demo.Api.Data
 
                 entity.Property(o => o.UnitOfMeasure).IsRequired()
                     .HasConversion(
-                        convertToProviderExpression: enm => enm.Value,
-                        convertFromProviderExpression: id => UnitOfMeasure.FromValue(id))
+                        enm => enm.Value,
+                        id => UnitOfMeasure.FromValue(id))
                     .HasColumnName("unit_of_measure_id");
 
                 entity.Property(e => e.IngredientId);

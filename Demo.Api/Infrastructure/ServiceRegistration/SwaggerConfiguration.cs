@@ -39,7 +39,7 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
                     Format = "int64"
                 });
 
-                c.MapType<UnitOfMeasure>(() => new OpenApiSchema()
+                c.MapType<UnitOfMeasure>(() => new OpenApiSchema
                 {
                     Type = "string"
                 });

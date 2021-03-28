@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Ardalis.SmartEnum.SystemTextJson;
@@ -27,10 +28,6 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
 // due to https://github.com/ardalis/SmartEnum/issues/113
 namespace Ardalis.SmartEnum.SystemTextJson
 {
-    using System;
-    using System.Text.Json;
-    using System.Text.Json.Serialization;
-
     public class SmartEnumNameConverter<TEnum, TValue> : JsonConverter<TEnum>
         where TEnum : SmartEnum<TEnum, TValue>
         where TValue : IEquatable<TValue>, IComparable<TValue>, IConvertible
@@ -50,16 +47,20 @@ namespace Ardalis.SmartEnum.SystemTextJson
         public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
         {
             if (value == null)
+            {
                 writer.WriteNullValue();
+            }
             else
-                writer.WriteStringValue(value.Name.ToString());
+            {
+                writer.WriteStringValue(value.Name);
+            }
         }
 
         private TEnum GetFromName(string name)
         {
             try
             {
-                return SmartEnum<TEnum, TValue>.FromName(name, false);
+                return SmartEnum<TEnum, TValue>.FromName(name);
             }
             catch (Exception ex)
             {

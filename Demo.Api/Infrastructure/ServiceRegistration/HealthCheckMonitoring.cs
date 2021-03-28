@@ -17,7 +17,7 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
             services.AddHealthChecks()
                 .AddDbContextCheck<PlaygroundContext>()
                 .AddCheck<CustomHealthCheck>("Custom Check")
-                .AddCheck<MigrationHealthCheck>(name: "Migration Status");
+                .AddCheck<MigrationHealthCheck>("Migration Status");
         }
 
         public static void MapAppHealthChecks(this IEndpointRouteBuilder endpoints)
