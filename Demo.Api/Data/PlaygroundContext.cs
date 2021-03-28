@@ -67,7 +67,9 @@ namespace Demo.Api.Data
                     .HasForeignKey(r => r.RecipeId);
 
                 entity.Property(o => o.UnitOfMeasure).IsRequired()
-                    .HasConversion<int>()
+                    .HasConversion(
+                        convertToProviderExpression: enm => enm.Value,
+                        convertFromProviderExpression: id => UnitOfMeasure.FromValue(id))
                     .HasColumnName("unit_of_measure_id");
 
                 entity.Property(e => e.IngredientId);

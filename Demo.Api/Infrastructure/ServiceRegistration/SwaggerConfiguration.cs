@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
+using Demo.Api.Domain;
 using MicroElements.Swashbuckle.NodaTime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -36,6 +37,11 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
                 {
                     Type = "string",
                     Format = "int64"
+                });
+
+                c.MapType<UnitOfMeasure>(() => new OpenApiSchema()
+                {
+                    Type = "string"
                 });
 
                 var jsonSerializerOptions = new JsonSerializerOptions();

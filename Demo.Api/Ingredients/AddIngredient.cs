@@ -29,7 +29,6 @@ namespace Demo.Api.Ingredients
             RuleFor(x => x.RecipeKey).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(256);
             RuleFor(x => x.Quantity).GreaterThan(0M);
-            RuleFor(x => x.UnitOfMeasure).IsInEnum();
         }
     }
 

@@ -15,7 +15,7 @@ namespace Demo.Api.IntegrationTests.ReferenceData
             var result = await AppFixture.SendAsync(new GetUnitsOfMeasureRequest());
             foreach (var refData in result)
             {
-                var isMemberOfEnum = Enum.TryParse(refData.Code, out UnitOfMeasure _);
+                var isMemberOfEnum = UnitOfMeasure.TryFromName(refData.Code, out _);
                 isMemberOfEnum.Should()
                     .BeTrue(because: $"'{refData.Code}' should be a member of the UnitOfMeasure enum");
             }

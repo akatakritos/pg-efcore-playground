@@ -38,7 +38,6 @@ namespace Demo.Api.Domain
         public RecipeIngredient AddIngredient(Ingredient ingredient, UnitOfMeasure unitOfMeasure, decimal quantity)
         {
             Verify.Param(ingredient, nameof(ingredient)).IsNotNull();
-            Verify.Param(unitOfMeasure, nameof(unitOfMeasure)).IsDefinedEnum();
             Verify.Param(quantity, nameof(quantity)).IsGreaterThan(0M);
 
             if (RecipeIngredients.Any(ri => ri.Ingredient == ri))
