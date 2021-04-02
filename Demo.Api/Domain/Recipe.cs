@@ -7,6 +7,11 @@ using NodaTime;
 
 namespace Demo.Api.Domain
 {
+    public record RecipeChangedEvent(Guid Key) : IDomainEvent;
+
+    public record RecipeDeletedEvent(Guid Key) : IDomainEvent;
+
+
     // aggregate root
     public class Recipe : AggregateRoot
     {
@@ -54,6 +59,7 @@ namespace Demo.Api.Domain
             var recipeIngredient = new RecipeIngredient(this, ingredient, unitOfMeasure, quantity);
 
             _recipeIngredients.Add(recipeIngredient);
+            EnqueueDomainEvent(new RecipeChangedEvent(Key));
             return recipeIngredient;
         }
 
@@ -69,6 +75,7 @@ namespace Demo.Api.Domain
 
             recipeIngredient.SoftDelete();
             _recipeIngredients.Remove(recipeIngredient);
+            EnqueueDomainEvent(new RecipeChangedEvent(Key));
             MarkUpdated();
         }
 
@@ -81,6 +88,7 @@ namespace Demo.Api.Domain
             }
 
             _recipeIngredients.Clear();
+            EnqueueDomainEvent(new RecipeDeletedEvent(Key));
         }
     }
 }

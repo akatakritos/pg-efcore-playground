@@ -145,6 +145,8 @@ namespace Demo.Api.Data
                     {
                         await _dispatcher.DispatchAsync(@event);
                     }
+
+                    root.ClearEvents();
                 }
             }
 

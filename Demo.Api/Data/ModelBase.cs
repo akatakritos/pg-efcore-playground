@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Demo.Api.Shared;
+using MediatR;
 using NodaTime;
 using Serilog;
 
 namespace Demo.Api.Data
 {
-    public interface IDomainEvent
+    public interface IDomainEvent : INotification
     {
     }
 
@@ -16,6 +17,11 @@ namespace Demo.Api.Data
         private List<IDomainEvent> _domainEvents = new List<IDomainEvent>();
         protected void EnqueueDomainEvent(IDomainEvent @event) => _domainEvents.Add(@event);
         internal IEnumerable<IDomainEvent> QueuedEvents => _domainEvents;
+
+        public void ClearEvents()
+        {
+            _domainEvents.Clear();
+        }
     }
 
     public interface IDomainEventDispatcher
@@ -54,7 +60,7 @@ namespace Demo.Api.Data
             Version++;
         }
 
-        public void MarkUpdated()
+        public virtual void MarkUpdated()
         {
             UpdatedAt = SystemClock.Instance.GetCurrentInstant();
             IncrementVersion();

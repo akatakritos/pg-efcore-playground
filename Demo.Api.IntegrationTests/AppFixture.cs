@@ -39,6 +39,7 @@ namespace Demo.Api.IntegrationTests
             startup.ConfigureServices(services);
             var builder = new AutofacServiceProviderFactory().CreateBuilder(services);
             startup.ConfigureContainer(builder);
+            builder.RegisterType<NullDispatcher>().As<IDomainEventDispatcher>(); // replace with null dispatcher
 
             var container = builder.Build();
 

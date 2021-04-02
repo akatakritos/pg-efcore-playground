@@ -31,7 +31,7 @@ namespace Demo.Api.Infrastructure.ServiceRegistration
 
             var mediatrPlugins = new[]
             {
-                typeof(IRequestHandler<>), typeof(IRequestHandler<,>)
+                typeof(IRequestHandler<>), typeof(IRequestHandler<,>), typeof(INotificationHandler<>)
             };
 
             foreach (var @interface in mediatrPlugins)
