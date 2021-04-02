@@ -8,7 +8,7 @@ using NodaTime;
 namespace Demo.Api.Domain
 {
     // aggregate root
-    public class Recipe : ModelBase
+    public class Recipe : AggregateRoot
     {
         private readonly List<RecipeIngredient> _recipeIngredients = new();
 

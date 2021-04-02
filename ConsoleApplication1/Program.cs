@@ -21,7 +21,7 @@ namespace ConsoleApplication1
 
             // context.Customers.Add(customer);
             // await context.SaveChangesAsync();
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
         }
 
         private static async Task Seed(int n = 1000)

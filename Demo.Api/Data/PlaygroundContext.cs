@@ -13,9 +13,15 @@ namespace Demo.Api.Data
 {
     public class PlaygroundContext : DbContext
     {
+        private readonly IDomainEventDispatcher _dispatcher;
         private IDbContextTransaction? _currentTransaction;
 
-        public PlaygroundContext(DbContextOptions<PlaygroundContext> options) : base(options)
+        public PlaygroundContext(IDomainEventDispatcher dispatcher, DbContextOptions<PlaygroundContext> options) : base(options)
+        {
+            _dispatcher = dispatcher;
+        }
+
+        public PlaygroundContext(DbContextOptions<PlaygroundContext> options) : this(new NullDispatcher(), options)
         {
         }
 
@@ -98,7 +104,7 @@ namespace Demo.Api.Data
             entity.HasQueryFilter(e => e.DeletedAt == null);
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
         {
             // expensive to do three times, do once and switch on state
             var added = ChangeTracker.Entries().Where(e => e.State == EntityState.Added);
@@ -129,7 +135,20 @@ namespace Demo.Api.Data
                 }
             }
 
-            return base.SaveChangesAsync(cancellationToken);
+            var changes = await base.SaveChangesAsync(cancellationToken);
+
+            foreach (var entity in ChangeTracker.Entries())
+            {
+                if (entity.Entity is AggregateRoot root)
+                {
+                    foreach (var @event in root.QueuedEvents)
+                    {
+                        await _dispatcher.DispatchAsync(@event);
+                    }
+                }
+            }
+
+            return changes;
         }
 
 

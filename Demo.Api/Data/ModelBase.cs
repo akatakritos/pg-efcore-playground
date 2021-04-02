@@ -1,9 +1,39 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Demo.Api.Shared;
 using NodaTime;
+using Serilog;
 
 namespace Demo.Api.Data
 {
+    public interface IDomainEvent
+    {
+    }
+
+    public class AggregateRoot : ModelBase
+    {
+        private List<IDomainEvent> _domainEvents = new List<IDomainEvent>();
+        protected void EnqueueDomainEvent(IDomainEvent @event) => _domainEvents.Add(@event);
+        internal IEnumerable<IDomainEvent> QueuedEvents => _domainEvents;
+    }
+
+    public interface IDomainEventDispatcher
+    {
+        Task DispatchAsync(IDomainEvent @event);
+    }
+
+    public class NullDispatcher: IDomainEventDispatcher
+    {
+        private static ILogger _log = Log.ForContext<NullDispatcher>();
+
+        public Task DispatchAsync(IDomainEvent @event)
+        {
+            _log.Information("Sending domain event {@Event}", @event);
+            return Task.CompletedTask;
+        }
+    }
+
     public class ModelBase : IModel
     {
         // todo -- do we even need this? Could refer to it by string name in ef setup
