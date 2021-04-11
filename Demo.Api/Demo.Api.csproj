@@ -20,6 +20,9 @@
         <PackageReference Include="EFCore.NamingConventions" Version="5.0.2" />
         <PackageReference Include="FluentValidation" Version="9.5.3" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="9.5.3" />
+        <PackageReference Include="Lucene.Net" Version="4.8.0-beta00014" />
+        <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00014" />
+        <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00014" />
         <PackageReference Include="MediatR" Version="9.0.0" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
         <PackageReference Include="MicroElements.Swashbuckle.NodaTime" Version="4.0.1" />

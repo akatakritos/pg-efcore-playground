@@ -1,8 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Running;
 using Demo.Api.Data;
 using Demo.Api.Domain;
+using Demo.Api.Infrastructure;
+using Demo.Api.Infrastructure.Indexing;
 using Faker;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
@@ -14,7 +17,31 @@ namespace ConsoleApplication1
     {
         private static async Task Main(string[] args)
         {
-            BenchmarkRunner.Run<SplitQueryBenchmark>();
+
+            var context = new PlaygroundContext(new DbContextOptionsBuilder<PlaygroundContext>()
+                .UseNpgsql("Host=localhost;Database=playground;Username=postgres;Password=LocalDev123",
+                    o => o.UseNodaTime())
+                .UseSnakeCaseNamingConvention()
+                .EnableSensitiveDataLogging().Options);
+
+            var path = @"/Users/matt.burke/projects/misc/ConsoleApplication1";
+            var indexPath = Path.Combine(path, "recipe-index");
+            Console.WriteLine(indexPath);
+            var sharedWriter = new SharedLuceneWriter(indexPath);
+            // var indexer = new IndexAllRecipes(context, new RecipeIndexer(sharedWriter));
+            // await indexer.IndexAll();
+
+            var searcher = new RecipeIndexSearcher(sharedWriter);
+            foreach (var result in searcher.Search("potato").Results)
+            {
+                Console.WriteLine($"{result.Name} ({result.Key})");
+                Console.WriteLine(result.Description);
+                Console.WriteLine(result.IngredientNames);
+                Console.WriteLine("----------");
+            }
+
+
+            // BenchmarkRunner.Run<SplitQueryBenchmark>();
 
             // await Seed(10_000);
             return;
