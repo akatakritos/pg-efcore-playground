@@ -5,10 +5,10 @@ Demonstrates some common patterns we use at work in EF Core and PG
 ## Soft Deletes
 
 We like to use a `deleted_at` column to indicate a soft-deleted record. If `deleted_at` is null,
-then the record is still live. If it has a `timestamptz` value in it, then it should be 
+then the record is still live. If it has a `timestamptz` value in it, then it should be
 considered dead.
 
-Entity Framework has a `HasQueryFilter` method that can automatically add a WHERE clause 
+Entity Framework has a `HasQueryFilter` method that can automatically add a WHERE clause
 to each query. We add this to all classes inheriting from the `BaseModel`. See `ConfigureBaseModel`
 in the `PlaygroundContext` class.
 
@@ -40,7 +40,7 @@ to a history table.
 
 The version number avoids a situation where two clients read a record, independently mutate it, and
 save it back. Without a concurrency check, the last one in wins, and the first one to save will
-have their changes lost. 
+have their changes lost.
 
 EntityFramework increments the version number on each Update -- see `PlaygroundContext::SaveChangesAsync`.
 
@@ -125,3 +125,8 @@ A pipeline can perform some kinds of authorization automatically.
 ### Caching
 
 A pipeline can cache responses based on keys determined by the Request
+
+### Internal Domain Events
+
+Mediatr can also be the pipeline for internal domain events. In this project an event is raised when
+a Recipe is updated, and a background runner can reindex it with Lucene.
