@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Demo.Api.Controllers;
+using Demo.Api.Infrastructure.Indexing;
 using Demo.Api.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,14 @@ namespace Demo.Api.Recipes
         {
             var result = await _mediator.Send(new GetRecipeRequest { Key = key });
             return Ok(result);
+        }
+
+        [HttpGet("")]
+        [ProducesResponseType(typeof(RecipeSearchResult), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> Search([FromQuery] SearchRecipeRequest request)
+        {
+            return Ok(await _mediator.Send(request));
         }
     }
 }

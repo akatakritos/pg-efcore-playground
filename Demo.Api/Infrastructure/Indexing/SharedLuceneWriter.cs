@@ -12,7 +12,7 @@ namespace Demo.Api.Infrastructure.Indexing
 
         public SharedLuceneWriter(string rootPath)
         {
-            RootPath = rootPath;
+            RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
             _writer = new Lazy<IndexWriter>(CreateWriter);
         }
 

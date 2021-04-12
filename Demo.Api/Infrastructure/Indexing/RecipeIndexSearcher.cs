@@ -6,6 +6,8 @@ using Lucene.Net.Analysis.TokenAttributes;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 using Lucene.Net.Util;
+using Serilog;
+using StackExchange.Profiling;
 
 namespace Demo.Api.Infrastructure.Indexing
 {
@@ -15,6 +17,7 @@ namespace Demo.Api.Infrastructure.Indexing
 
     public class RecipeIndexSearcher
     {
+        private static readonly ILogger _log = Log.ForContext<RecipeIndexSearcher>();
         private readonly SharedLuceneWriter _writer;
 
         public RecipeIndexSearcher(SharedLuceneWriter writer)
@@ -34,7 +37,7 @@ namespace Demo.Api.Infrastructure.Indexing
             }
         }
 
-        public SearchResult Search(string search)
+        public SearchResult Search(string search, int skip = 0, int take = 25)
         {
             using var reader = _writer.Writer.GetReader(true);
             var searcher = new IndexSearcher(reader);
@@ -55,21 +58,25 @@ namespace Demo.Api.Infrastructure.Indexing
                 phrase.Add(ingredientQuery, Occur.SHOULD);
             }
 
-            Console.WriteLine(phrase.ToString());
+            _log.Information("Executing index search {Query}", phrase);
 
-            var hits = searcher.Search(phrase, 20);
-            return new SearchResult(
-                TotalHits: hits.TotalHits,
-                Results: hits.ScoreDocs.Select(hit =>
-                {
-                    var doc = searcher.Doc(hit.Doc);
-                    return new RecipeSearchResult(
-                        Key: Guid.Parse(doc.Get("key")),
-                        Name: doc.Get("name"),
-                        Description: doc.Get("description"),
-                        IngredientNames: doc.Get("ingredient_names")
-                    );
-                }).ToList());
+            using (MiniProfiler.Current.Step("Search Lucene"))
+            {
+                var hits = searcher.Search(phrase, skip + take);
+                _log.Debug("Found {TotalHits} matching docs", hits.TotalHits);
+                return new SearchResult(
+                    TotalHits: hits.TotalHits,
+                    Results: hits.ScoreDocs.Skip(skip).Take(take).Select(hit =>
+                    {
+                        var doc = searcher.Doc(hit.Doc);
+                        return new RecipeSearchResult(
+                            Key: Guid.Parse(doc.Get("key")),
+                            Name: doc.Get("name"),
+                            Description: doc.Get("description"),
+                            IngredientNames: doc.Get("ingredient_names")
+                        );
+                    }).ToList());
+            }
         }
     }
 }

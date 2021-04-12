@@ -3,11 +3,14 @@ using System.Linq;
 using Demo.Api.Domain;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
+using Serilog;
+using Serilog.Core;
 
 namespace Demo.Api.Infrastructure.Indexing
 {
     public class RecipeIndexer
     {
+        private static readonly ILogger _log = Log.ForContext<RecipeIndexer>();
         private readonly SharedLuceneWriter _writer;
 
         public RecipeIndexer(SharedLuceneWriter writer)
@@ -36,6 +39,7 @@ namespace Demo.Api.Infrastructure.Indexing
             _writer.Writer.UpdateDocument(new Term("key", r.Key.ToString("N")), doc);
             _writer.Writer.Flush(true, true);
             _writer.Writer.Commit();
+            _log.Information("Indexed Recipe {Key}", r.Key);
         }
 
         private Document CreateDocument(Recipe r)

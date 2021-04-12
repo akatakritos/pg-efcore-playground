@@ -5,6 +5,7 @@ using Demo.Api.Data;
 using Demo.Api.Data.Migrations;
 using Demo.Api.Domain;
 using Demo.Api.Infrastructure;
+using Demo.Api.Infrastructure.Indexing;
 using Demo.Api.Infrastructure.ServiceRegistration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -55,6 +56,7 @@ namespace Demo.Api
             builder.RegisterModule(new MediatrModule());
             builder.RegisterModule(new ValidationModule());
             builder.RegisterModule(new AutoMapperModule(Environment.IsDevelopment(), typeof(Startup).Assembly));
+            builder.RegisterModule(new IndexingModule(Configuration));
             builder.RegisterType<BackgroundMessageDispatcher>().As<IDomainEventDispatcher>().InstancePerLifetimeScope();
 
             SqlMapper.AddTypeHandler(InstantHandler.Default);
